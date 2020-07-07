@@ -1,0 +1,27 @@
+* {
+    all: unset;
+    box-sizing: border-box;
+}
+
+:root {
+    font-family: 'Open Sans', sans-serif;
+}
+
+head {
+    display: none;
+}
+
+canvas {
+    /* https://stackoverflow.com/a/50925544 */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+
+    /* 21:9 */
+    width: 42rem;
+    height: 18rem;
+
+    border: 1px solid black;
+}
