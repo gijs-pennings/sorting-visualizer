@@ -18,10 +18,4 @@ canvas {
     left: 50%;
     margin-right: -50%;
     transform: translate(-50%, -50%);
-
-    /* 21:9 */
-    width: 42rem;
-    height: 18rem;
-
-    border: 1px solid black;
 }
