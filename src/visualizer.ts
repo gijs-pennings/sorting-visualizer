@@ -8,7 +8,27 @@ Array.prototype.shuffle = function() {
     }
 }
 
+function step() {
+
+    if (iBubble >= nBubble) {
+        iBubble = 0
+        nBubble--
+        if (nBubble <= 0) return
+    }
+
+    iBubble++
+
+    if (array[iBubble - 1] > array[iBubble]) {
+        const t = array[iBubble]
+        array[iBubble] = array[iBubble - 1]
+        array[iBubble - 1] = t
+    }
+
+}
+
 function draw() {
+
+    ctx.clearRect(0, 0, can.width, can.height)
 
     for (let i = 0; i < barCount; i++) {
         const n = array[i]
@@ -20,7 +40,10 @@ function draw() {
         )
     }
 
-    // window.requestAnimationFrame(draw)
+    step()
+    step()
+
+    window.requestAnimationFrame(draw)
 
 }
 
@@ -33,5 +56,8 @@ const barWidth = can.width / (1.5 * barCount - 0.5)
 const array: number[] = []
 for (let i = 0; i < barCount; i++) array[i] = i
 array.shuffle()
+
+let nBubble = barCount
+let iBubble = 0
 
 window.requestAnimationFrame(draw)
