@@ -1,6 +1,7 @@
+// https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm
 interface Array<T> { shuffle(): void }
 Array.prototype.shuffle = function() {
-    for (let i = this.length; i > 0; /* empty */) {
+    for (let i = this.length; i > 1; /* empty */) {
         const j = Math.floor(Math.random() * i--)
         const t = this[i]
         this[i] = this[j]
