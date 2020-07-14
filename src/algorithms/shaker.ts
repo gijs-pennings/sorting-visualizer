@@ -3,7 +3,7 @@ class ShakerSort extends Algorithm {
     private i = 1
     private iStart = 0 // inclusive
     private iEnd = this.array.length - 1 // inclusive
-    private iNew = 0
+    private iNew = this.iStart
     private direction = 1 // +1 => right, -1 => left
 
     step() {
