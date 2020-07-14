@@ -1,8 +1,7 @@
-// https://en.wikipedia.org/wiki/Bubble_sort#Optimizing_bubble_sort
 class BubbleSort extends Algorithm {
 
     private i = 1
-    private n = this.array.length
+    private n = this.array.length // exclusive
     private nNew = 0
 
     step() {
