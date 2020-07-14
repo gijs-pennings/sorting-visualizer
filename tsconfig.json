@@ -4,9 +4,15 @@
         "noImplicitReturns": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
+        "outFile": "src/bundle.js",
         "removeComments": true,
         "strict": true,
         "target": "es5"
     },
-    "include": [ "src" ]
+    "include": [ // defines order of compilation (TODO: not a scalable option)
+        "src/utils.ts",
+        "src/algorithms/base.ts",
+        "src/algorithms/*.ts",
+        "src/visualizer.ts"
+    ]
 }
