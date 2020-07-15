@@ -8,13 +8,10 @@ function* insertion(a: number[]): Steps {
         let j = i
         while (j > 0) {
             accesses++, comparisons++
-            if (a[j-1] > a[j]) {
-                accesses++
-                a.swap(j-1, j)
-                yield [accesses, comparisons, [j-1, j]]
-            } else {
-                break
-            }
+            yield [accesses, comparisons, [j-1, j]]
+            if (a[j-1] <= a[j]) break
+            accesses++
+            a.swap(j-1, j)
             j--
         }
     }
@@ -30,15 +27,13 @@ algorithm used. They are based on a slightly faster version (pseudocode below)
 which accesses the array less often. The algorithm above is used because it
 creates a more visually appealing animation.
 
-    for i in 1 until a.length
+    for i in 1 until a.length:
         x ← a[i]
         j ← i
-        while j > 0
+        while j > 0:
             y ← a[j-1]
-            if y > x
-                a[j] ← y
-            else
-                break
+            if y <= x: break
+            a[j] ← y
             j ← j - 1
         a[j] ← x
 
