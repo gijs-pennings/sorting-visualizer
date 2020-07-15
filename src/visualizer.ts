@@ -15,10 +15,13 @@ function update(time: number) {
 
     document.querySelector('#accesses')!.textContent = state.value[0].toString()
     document.querySelector('#comparisons')!.textContent = state.value[1].toString()
+    document.querySelector('#status')!.textContent = state.value[4] ? `(${state.value[4]})` : null
 
     ctx.clearRect(0, 0, can.width, can.height)
     for (let i = 0; i < barCount; i++) {
-        ctx.fillStyle = state.value[2]?.includes(i) ? 'red' : 'black'
+        ctx.fillStyle = 'black'
+        if (state.value[2]?.includes(i)) ctx.fillStyle = 'red'
+        if (state.value[3]?.includes(i)) ctx.fillStyle = 'limegreen'
         ctx.fillRect(
             1.5 * i * barWidth,
             can.height,

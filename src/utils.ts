@@ -16,5 +16,8 @@ Array.prototype.swap = function(i, j) {
     this[j] = t
 }
 
-// TODO: is the void type used correctly?
-type Steps = Generator<[number, number, number[]], [number, number], void>
+type Steps = Generator<
+    [number, number, number[], number[], string | undefined],
+    [number, number],
+    void // TODO: used correctly?
+>

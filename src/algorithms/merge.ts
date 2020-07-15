@@ -20,13 +20,13 @@ function* mergeUp(a: number[]): Steps {
             for (let j = i; j < qMax; j++)
                 if (p < pMax) {
                     if (q >= qMax) {
-                        yield [accesses, comparisons, [p]]
+                        yield [accesses, comparisons, [p], [], 'merging']
                         accesses += 2
                         b[j] = a[p]
                         p++
                     } else {
                         accesses += 2, comparisons++
-                        yield [accesses, comparisons, [p, q]]
+                        yield [accesses, comparisons, [p, q], [], 'merging']
                         accesses++
                         if (a[p] <= a[q])
                             b[j] = a[p], p++
@@ -34,7 +34,7 @@ function* mergeUp(a: number[]): Steps {
                             b[j] = a[q], q++
                     }
                 } else {
-                    yield [accesses, comparisons, [q]]
+                    yield [accesses, comparisons, [q], [], 'merging']
                     accesses += 2
                     b[j] = a[q]
                     q++
@@ -44,7 +44,7 @@ function* mergeUp(a: number[]): Steps {
             for (let j = i; j < qMax; j++) {
                 accesses += 2
                 a[j] = b[j]
-                yield [accesses, comparisons, [j]]
+                yield [accesses, comparisons, [], [j], 'copying']
             }
 
         }

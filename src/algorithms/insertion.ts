@@ -8,7 +8,7 @@ function* insertion(a: number[]): Steps {
         let j = i
         while (j > 0) {
             accesses++, comparisons++
-            yield [accesses, comparisons, [j-1, j]]
+            yield [accesses, comparisons, [j-1, j], [], undefined] // TODO: add green bars?
             if (a[j-1] <= a[j]) break
             accesses++
             a.swap(j-1, j)

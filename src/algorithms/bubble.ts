@@ -8,7 +8,7 @@ function* bubble(a: number[]): Steps {
         let m = 0
         for (let i = 1; i < n; i++) {
             accesses++, comparisons++
-            yield [accesses, comparisons, [i-1, i]]
+            yield [accesses, comparisons, [i-1, i], [n], undefined]
             accesses++
             if (a[i-1] > a[i]) {
                 a.swap(i-1, i)

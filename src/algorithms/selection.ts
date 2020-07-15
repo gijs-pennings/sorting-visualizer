@@ -8,7 +8,7 @@ function* selection(a: number[]): Steps {
         let jMin = i
         for (let j = i + 1; j < a.length; j++) {
             accesses++, comparisons++
-            yield [accesses, comparisons, [jMin, j]]
+            yield [accesses, comparisons, [jMin, j], [i-1], undefined]
             if (a[j] < a[jMin]) {
                 accesses++
                 jMin = j

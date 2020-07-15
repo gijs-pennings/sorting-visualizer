@@ -14,7 +14,7 @@ function* shaker(a: number[]): Steps {
         accesses++
         for (let i = iStart + 1; i <= iEnd; i++) {
             accesses++, comparisons++
-            yield [accesses, comparisons, [i-1, i]]
+            yield [accesses, comparisons, [i-1, i], [iStart-1, iEnd+1], undefined]
             accesses++
             if (a[i-1] > a[i]) {
                 a.swap(i-1, i)
@@ -28,7 +28,7 @@ function* shaker(a: number[]): Steps {
         accesses++
         for (let i = iEnd; i > iStart; i--) {
             accesses++, comparisons++
-            yield [accesses, comparisons, [i-1, i]]
+            yield [accesses, comparisons, [i-1, i], [iStart-1, iEnd+1], undefined]
             accesses++
             if (a[i-1] > a[i]) {
                 a.swap(i-1, i)
