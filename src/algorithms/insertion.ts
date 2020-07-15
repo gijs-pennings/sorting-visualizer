@@ -27,8 +27,8 @@ function* insertion(a: number[]): Steps {
 
 The calculated number of accesses and comparisons do not correspond to the
 algorithm used. They are based on a slightly faster version (pseudocode below)
-where a[i] and a[j] are temporarily stored. The algorithm above is used because
-it creates a more visually appealing animation.
+which accesses the array less often. The algorithm above is used because it
+creates a more visually appealing animation.
 
     for i in 1 until a.length
         x ← a[i]
