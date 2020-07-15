@@ -1,29 +1,46 @@
-class ShakerSort extends Algorithm {
+function* shaker(a: number[]): Steps {
 
-    private i = 1
-    private iStart = 0 // inclusive
-    private iEnd = this.array.length - 1 // inclusive
-    private iNew = this.iStart
-    private direction = 1 // +1 => right, -1 => left
+    let accesses = 0
+    let comparisons = 0
 
-    step() {
-        if (this.iStart >= this.iEnd) return
+    // inclusive
+    let iStart = 0
+    let iEnd = a.length - 1
 
-        if (this.i > this.iEnd) {
-            this.i = this.iEnd = this.iNew - 1
-            this.direction *= -1 // == -1
-        } else if (this.i <= this.iStart) {
-            this.iStart = this.iNew
-            this.i = this.iStart + 1
-            this.direction *= -1 // == +1
+    while (iStart < iEnd /* i.e. there are >=2 unsorted elements */) {
+
+        let iNew = iStart
+
+        accesses++
+        for (let i = iStart + 1; i <= iEnd; i++) {
+            accesses++, comparisons++
+            yield [accesses, comparisons, [i-1, i]]
+            accesses++
+            if (a[i-1] > a[i]) {
+                a.swap(i-1, i)
+                iNew = i
+            }
         }
+        accesses++
 
-        if (this.array[this.i - 1] > this.array[this.i]) {
-            this.array.swap(this.i - 1, this.i)
-            this.iNew = this.i
+        iEnd = --iNew
+
+        accesses++
+        for (let i = iEnd; i > iStart; i--) {
+            accesses++, comparisons++
+            yield [accesses, comparisons, [i-1, i]]
+            accesses++
+            if (a[i-1] > a[i]) {
+                a.swap(i-1, i)
+                iNew = i
+            }
         }
+        accesses++
 
-        this.i += this.direction
+        iStart = iNew
+
     }
+
+    return [accesses, comparisons] as [number, number]
 
 }

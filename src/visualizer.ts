@@ -34,6 +34,7 @@ const ctx = can.getContext('2d')!
 
 const barCount = 50 // (temp)
 const barWidth = can.width / (1.5 * barCount - 0.5)
+const msPerStep = 20 // => 50 steps per second (temp)
 
 const array: number[] = []
 for (let i = 0; i < barCount; i++) array[i] = i

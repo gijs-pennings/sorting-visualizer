@@ -1,21 +1,39 @@
-class SelectionSort extends Algorithm {
+function* selection(a: number[]): Steps {
 
-    private i = 0
-    private j = this.i
-    private jMin = this.j
+    let accesses = 0
+    let comparisons = 0
 
-    step() {
-        if (this.i >= this.array.length - 1) return
-
-        if (this.j >= this.array.length) {
-            this.array.swap(this.i, this.jMin)
-            this.j = 1 + (this.jMin = ++this.i) // ;)
-            return
+    for (let i = 0; i < a.length - 1; i++) {
+        accesses++
+        let jMin = i
+        for (let j = i + 1; j < a.length; j++) {
+            accesses++, comparisons++
+            yield [accesses, comparisons, [jMin, j]]
+            if (a[j] < a[jMin]) {
+                accesses++
+                jMin = j
+            }
         }
-
-        if (this.array[this.j] < this.array[this.jMin]) this.jMin = this.j
-
-        this.j++
+        if (i !== jMin) {
+            accesses++
+            a.swap(i, jMin)
+        }
     }
 
+    return [accesses, comparisons] as [number, number]
+
 }
+
+/*
+
+for i in 0 until a.length-1
+    minIndex ← i
+    min ← a[minIndex]
+    for j in i+1 until a.length
+        if a[j] < min
+            minIndex ← j
+            min ← a[minIndex]
+    if i ≠ minIndex
+        a[i] ← min
+
+*/

@@ -1,24 +1,43 @@
-class BubbleSort extends Algorithm {
+function* bubble(a: number[]): Steps {
 
-    private i = 1
-    private n = this.array.length // exclusive
-    private nNew = 0
+    let accesses = 0
+    let comparisons = 0
 
-    step() {
-        if (this.n <= 1) return
-
-        if (this.i >= this.n) {
-            this.i = 1
-            this.n = this.nNew
-            this.nNew = 0
+    for (let n = a.length; n > 1; /* empty */) {
+        accesses++
+        let m = 0
+        for (let i = 1; i < n; i++) {
+            accesses++, comparisons++
+            yield [accesses, comparisons, [i-1, i]]
+            accesses++
+            if (a[i-1] > a[i]) {
+                a.swap(i-1, i)
+                m = i
+            }
         }
-
-        if (this.array[this.i - 1] > this.array[this.i]) {
-            this.array.swap(this.i - 1, this.i)
-            this.nNew = this.i
-        }
-
-        this.i++
+        accesses++
+        n = m
     }
 
+    return [accesses, comparisons] as [number, number]
+
 }
+
+/*
+
+n ← a.length
+while n > 1
+    x ← a[0]
+    m ← 0
+    for i in 1 until n
+        y ← a[i]
+        if x > y
+            a[i-1] ← y
+            m ← i
+        else
+            a[i-1] ← x
+            x ← y
+    a[n-1] ← x
+    n ← m
+
+*/
