@@ -43,6 +43,6 @@ const array: number[] = []
 for (let i = 0; i < barCount; i++) array[i] = i
 array.shuffle()
 
-let algorithm = quick(array)
+let algorithm = quickHoare(array)
 let lastTime: number | undefined
 window.requestAnimationFrame(update)

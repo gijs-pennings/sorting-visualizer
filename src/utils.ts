@@ -16,6 +16,11 @@ Array.prototype.swap = function(i, j) {
     this[j] = t
 }
 
+function randomInt(min: number, max: number) {
+    // min, max must be inclusive integer bounds such that min <= max
+    return min + Math.floor(Math.random() * (max - min + 1))
+}
+
 type Steps = Generator<
     [number, number, number[], number[], string | undefined],
     [number, number],
