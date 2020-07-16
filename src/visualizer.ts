@@ -20,8 +20,8 @@ function update(time: number) {
     ctx.clearRect(0, 0, can.width, can.height)
     for (let i = 0; i < barCount; i++) {
         ctx.fillStyle = 'black'
-        if (state.value[2]?.includes(i)) ctx.fillStyle = 'red'
         if (state.value[3]?.includes(i)) ctx.fillStyle = 'limegreen'
+        if (state.value[2]?.includes(i)) ctx.fillStyle = 'red'
         ctx.fillRect(
             1.5 * i * barWidth,
             can.height,

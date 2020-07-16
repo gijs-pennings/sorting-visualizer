@@ -11,8 +11,9 @@ function* quickHoare(a: number[]): Steps { // "median of random three"-pivot
         const hi = stack.pop()!
         const lo = stack.pop()!
 
-        // picking pivot (threshold is an educated guess, based on many tests
-        // where number of accesses and comparisons were minimized)
+        // picking pivot (the threshold is an educated guess based on tests on
+        // distinct, shuffled data where the number of accesses and comparisons
+        // were minimized)
         let iPivot: number
         if (hi - lo < 25) {
             accesses++
@@ -45,13 +46,13 @@ function* quickHoare(a: number[]): Steps { // "median of random three"-pivot
             do {
                 i++
                 accesses++, comparisons++
-                yield [accesses, comparisons, [i, Math.min(j, hi)], [iPivot], 'partitioning']
+                if (i < j) yield [accesses, comparisons, j <= hi ? [i, j] : [i], [iPivot], 'partitioning']
             } while (a[i] < pivot)
 
             do {
                 j--
                 accesses++, comparisons++
-                yield [accesses, comparisons, [i, j], [iPivot], 'partitioning']
+                if (i < j) yield [accesses, comparisons, [i, j], [iPivot], 'partitioning']
             } while (a[j] > pivot)
 
             if (i >= j) break
