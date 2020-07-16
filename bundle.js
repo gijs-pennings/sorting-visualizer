@@ -8,6 +8,9 @@ Array.prototype.swap = function (i, j) {
     this[i] = this[j];
     this[j] = t;
 };
+function randomInt(min, max) {
+    return min + Math.floor(Math.random() * (max - min + 1));
+}
 function* bubble(a) {
     let accesses = 0;
     let comparisons = 0;
@@ -56,8 +59,6 @@ function* merge(a) {
             const pMax = i + width;
             if (pMax >= a.length)
                 continue;
-            if (a[pMax - 1] <= a[pMax])
-                continue;
             const qMax = Math.min(a.length, i + width * 2);
             let p = i;
             let q = pMax;
@@ -93,7 +94,7 @@ function* merge(a) {
         }
     return [accesses, comparisons];
 }
-function* quick(a) {
+function* quickHoare(a) {
     let accesses = 0;
     let comparisons = 0;
     const stack = [];
@@ -102,7 +103,27 @@ function* quick(a) {
     while (stack.length > 0) {
         const hi = stack.pop();
         const lo = stack.pop();
-        let iPivot = Math.floor((lo + hi) / 2);
+        let iPivot;
+        if (hi - lo < 25) {
+            accesses++;
+            iPivot = Math.floor((lo + hi) / 2);
+        }
+        else {
+            const indices = [randomInt(lo, hi), randomInt(lo, hi), randomInt(lo, hi)];
+            accesses++, comparisons++;
+            yield [accesses, comparisons, [indices[0], indices[1]], [], 'picking pivot'];
+            if (a[indices[0]] > a[indices[1]])
+                indices.swap(0, 1);
+            accesses++, comparisons++;
+            yield [accesses, comparisons, [indices[0], indices[2]], [], 'picking pivot'];
+            if (a[indices[0]] > a[indices[2]])
+                indices.swap(0, 2);
+            accesses++, comparisons++;
+            yield [accesses, comparisons, [indices[1], indices[2]], [], 'picking pivot'];
+            if (a[indices[1]] > a[indices[2]])
+                indices.swap(1, 2);
+            iPivot = indices[1];
+        }
         const pivot = a[iPivot];
         let i = lo - 1;
         let j = hi + 1;
@@ -110,12 +131,14 @@ function* quick(a) {
             do {
                 i++;
                 accesses++, comparisons++;
-                yield [accesses, comparisons, [i, Math.min(j, hi)], [iPivot], undefined];
+                if (i < j)
+                    yield [accesses, comparisons, j <= hi ? [i, j] : [i], [iPivot], 'partitioning'];
             } while (a[i] < pivot);
             do {
                 j--;
                 accesses++, comparisons++;
-                yield [accesses, comparisons, [i, j], [iPivot], undefined];
+                if (i < j)
+                    yield [accesses, comparisons, [i, j], [iPivot], 'partitioning'];
             } while (a[j] > pivot);
             if (i >= j)
                 break;
@@ -207,22 +230,24 @@ function update(time) {
     ctx.clearRect(0, 0, can.width, can.height);
     for (let i = 0; i < barCount; i++) {
         ctx.fillStyle = 'black';
-        if ((_a = state.value[2]) === null || _a === void 0 ? void 0 : _a.includes(i))
-            ctx.fillStyle = 'red';
-        if ((_b = state.value[3]) === null || _b === void 0 ? void 0 : _b.includes(i))
+        if ((_a = state.value[3]) === null || _a === void 0 ? void 0 : _a.includes(i))
             ctx.fillStyle = 'limegreen';
-        ctx.fillRect(1.5 * i * barWidth, can.height, barWidth, -can.height * (0.1 + 0.9 * array[i] / (barCount - 1)));
+        if ((_b = state.value[2]) === null || _b === void 0 ? void 0 : _b.includes(i))
+            ctx.fillStyle = 'red';
+        ctx.fillRect(padding + i * barWidthOuter, can.height, barWidth, -can.height * (0.1 + 0.9 * array[i] / (barCount - 1)));
     }
 }
 const can = document.querySelector('canvas');
 const ctx = can.getContext('2d');
 const barCount = Math.pow(2, 7);
-const barWidth = can.width / (1.5 * barCount - 0.5);
+const barWidthOuter = Math.floor((can.width + 1) / barCount);
+const barWidth = barWidthOuter <= 3 ? barWidthOuter : barWidthOuter - 1;
+const padding = Math.floor(0.5 * (can.width + 1 - barCount * barWidthOuter));
 const msPerStep = 20;
 const array = [];
 for (let i = 0; i < barCount; i++)
     array[i] = i;
 array.shuffle();
-let algorithm = quick(array);
+let algorithm = quickHoare(array);
 let lastTime;
 window.requestAnimationFrame(update);
