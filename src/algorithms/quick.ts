@@ -12,7 +12,8 @@ function* quick(a: number[]): Steps { // Hoare + middle pivot
         const lo = stack.pop()!
 
         // partition
-        const pivot = a[Math.floor((lo + hi) / 2)]
+        let iPivot = Math.floor((lo + hi) / 2)
+        const pivot = a[iPivot]
 
         let i = lo - 1
         let j = hi + 1
@@ -21,18 +22,20 @@ function* quick(a: number[]): Steps { // Hoare + middle pivot
             do {
                 i++
                 accesses++, comparisons++
-                yield [accesses, comparisons, [i, Math.min(j, hi)], [], undefined]
+                yield [accesses, comparisons, [i, Math.min(j, hi)], [iPivot], undefined]
             } while (a[i] < pivot)
 
             do {
                 j--
                 accesses++, comparisons++
-                yield [accesses, comparisons, [i, j], [], undefined]
+                yield [accesses, comparisons, [i, j], [iPivot], undefined]
             } while (a[j] > pivot)
 
             if (i >= j) break
+
             accesses += 2
             a.swap(i, j)
+            iPivot = iPivot === i ? j : (iPivot === j ? i : iPivot)
         }
 
         // recursion (reversed order)
