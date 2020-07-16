@@ -8,115 +8,185 @@ Array.prototype.swap = function (i, j) {
     this[i] = this[j];
     this[j] = t;
 };
-const msPerStep = 20;
-class Algorithm {
-    constructor(array) {
-        this.array = array;
-    }
-    update(time) {
-        if (this.lastTime === undefined) {
-            this.lastTime = time;
-            return;
+function* bubble(a) {
+    let accesses = 0;
+    let comparisons = 0;
+    for (let n = a.length; n > 1;) {
+        accesses++;
+        let m = 0;
+        for (let i = 1; i < n; i++) {
+            accesses++, comparisons++;
+            yield [accesses, comparisons, [i - 1, i], [n], undefined];
+            accesses++;
+            if (a[i - 1] > a[i]) {
+                a.swap(i - 1, i);
+                m = i;
+            }
         }
-        let steps = Math.round((time - this.lastTime) / msPerStep);
-        this.lastTime += steps * msPerStep;
-        while (steps-- > 0)
-            this.step();
+        accesses++;
+        n = m;
     }
-}
-class BubbleSort extends Algorithm {
-    constructor() {
-        super(...arguments);
-        this.i = 1;
-        this.n = this.array.length;
-        this.nNew = 0;
-    }
-    step() {
-        if (this.n <= 1)
-            return;
-        if (this.i >= this.n) {
-            this.i = 1;
-            this.n = this.nNew;
-            this.nNew = 0;
-        }
-        if (this.array[this.i - 1] > this.array[this.i]) {
-            this.array.swap(this.i - 1, this.i);
-            this.nNew = this.i;
-        }
-        this.i++;
-    }
+    return [accesses, comparisons];
 }
 function* insertion(a) {
     let accesses = 0;
     let comparisons = 0;
     for (let i = 1; i < a.length; i++) {
-        accesses += 2;
+        accesses++;
         let j = i;
         while (j > 0) {
             accesses++, comparisons++;
-            if (a[j - 1] > a[j]) {
-                accesses++;
-                a.swap(j - 1, j);
-                yield [accesses, comparisons, [j - 1, j]];
-            }
-            else {
+            yield [accesses, comparisons, [j - 1, j], [], undefined];
+            if (a[j - 1] <= a[j])
                 break;
-            }
+            accesses++;
+            a.swap(j - 1, j);
             j--;
+        }
+        accesses++;
+    }
+    return [accesses, comparisons];
+}
+function* merge(a) {
+    let accesses = 0;
+    let comparisons = 0;
+    let b = new Array(a.length);
+    for (let width = 1; width < a.length; width *= 2)
+        for (let i = 0; i < a.length; i += 2 * width) {
+            const pMax = i + width;
+            if (pMax >= a.length)
+                continue;
+            if (a[pMax - 1] <= a[pMax])
+                continue;
+            const qMax = Math.min(a.length, i + width * 2);
+            let p = i;
+            let q = pMax;
+            for (let j = i; j < qMax; j++)
+                if (p < pMax) {
+                    if (q >= qMax) {
+                        yield [accesses, comparisons, [p], [], 'merging'];
+                        accesses += 2;
+                        b[j] = a[p];
+                        p++;
+                    }
+                    else {
+                        accesses += 2, comparisons++;
+                        yield [accesses, comparisons, [p, q], [], 'merging'];
+                        accesses++;
+                        if (a[p] <= a[q])
+                            b[j] = a[p], p++;
+                        else
+                            b[j] = a[q], q++;
+                    }
+                }
+                else {
+                    yield [accesses, comparisons, [q], [], 'merging'];
+                    accesses += 2;
+                    b[j] = a[q];
+                    q++;
+                }
+            for (let j = i; j < qMax; j++) {
+                accesses += 2;
+                a[j] = b[j];
+                yield [accesses, comparisons, [], [j], 'copying'];
+            }
+        }
+    return [accesses, comparisons];
+}
+function* quick(a) {
+    let accesses = 0;
+    let comparisons = 0;
+    const stack = [];
+    if (a.length > 1)
+        stack.push(0, a.length - 1);
+    while (stack.length > 0) {
+        const hi = stack.pop();
+        const lo = stack.pop();
+        let iPivot = Math.floor((lo + hi) / 2);
+        const pivot = a[iPivot];
+        let i = lo - 1;
+        let j = hi + 1;
+        while (true) {
+            do {
+                i++;
+                accesses++, comparisons++;
+                yield [accesses, comparisons, [i, Math.min(j, hi)], [iPivot], undefined];
+            } while (a[i] < pivot);
+            do {
+                j--;
+                accesses++, comparisons++;
+                yield [accesses, comparisons, [i, j], [iPivot], undefined];
+            } while (a[j] > pivot);
+            if (i >= j)
+                break;
+            accesses += 2;
+            a.swap(i, j);
+            iPivot = iPivot === i ? j : (iPivot === j ? i : iPivot);
+        }
+        if (j + 1 < hi)
+            stack.push(j + 1, hi);
+        if (lo < j)
+            stack.push(lo, j);
+    }
+    return [accesses, comparisons];
+}
+function* selection(a) {
+    let accesses = 0;
+    let comparisons = 0;
+    for (let i = 0; i < a.length - 1; i++) {
+        accesses++;
+        let jMin = i;
+        for (let j = i + 1; j < a.length; j++) {
+            accesses++, comparisons++;
+            yield [accesses, comparisons, [jMin, j], [i - 1], undefined];
+            if (a[j] < a[jMin]) {
+                accesses++;
+                jMin = j;
+            }
+        }
+        if (i !== jMin) {
+            accesses++;
+            a.swap(i, jMin);
         }
     }
     return [accesses, comparisons];
 }
-class SelectionSort extends Algorithm {
-    constructor() {
-        super(...arguments);
-        this.i = 0;
-        this.j = this.i;
-        this.jMin = this.j;
-    }
-    step() {
-        if (this.i >= this.array.length - 1)
-            return;
-        if (this.j >= this.array.length) {
-            this.array.swap(this.i, this.jMin);
-            this.j = 1 + (this.jMin = ++this.i);
-            return;
+function* shaker(a) {
+    let accesses = 0;
+    let comparisons = 0;
+    let iStart = 0;
+    let iEnd = a.length - 1;
+    while (iStart < iEnd) {
+        let iNew = iStart;
+        accesses++;
+        for (let i = iStart + 1; i <= iEnd; i++) {
+            accesses++, comparisons++;
+            yield [accesses, comparisons, [i - 1, i], [iStart - 1, iEnd + 1], undefined];
+            accesses++;
+            if (a[i - 1] > a[i]) {
+                a.swap(i - 1, i);
+                iNew = i;
+            }
         }
-        if (this.array[this.j] < this.array[this.jMin])
-            this.jMin = this.j;
-        this.j++;
-    }
-}
-class ShakerSort extends Algorithm {
-    constructor() {
-        super(...arguments);
-        this.i = 1;
-        this.iStart = 0;
-        this.iEnd = this.array.length - 1;
-        this.iNew = this.iStart;
-        this.direction = 1;
-    }
-    step() {
-        if (this.iStart >= this.iEnd)
-            return;
-        if (this.i > this.iEnd) {
-            this.i = this.iEnd = this.iNew - 1;
-            this.direction *= -1;
+        accesses++;
+        iEnd = --iNew;
+        accesses++;
+        for (let i = iEnd; i > iStart; i--) {
+            accesses++, comparisons++;
+            yield [accesses, comparisons, [i - 1, i], [iStart - 1, iEnd + 1], undefined];
+            accesses++;
+            if (a[i - 1] > a[i]) {
+                a.swap(i - 1, i);
+                iNew = i;
+            }
         }
-        else if (this.i <= this.iStart) {
-            this.iStart = this.iNew;
-            this.i = this.iStart + 1;
-            this.direction *= -1;
-        }
-        if (this.array[this.i - 1] > this.array[this.i]) {
-            this.array.swap(this.i - 1, this.i);
-            this.iNew = this.i;
-        }
-        this.i += this.direction;
+        accesses++;
+        iStart = iNew;
     }
+    return [accesses, comparisons];
 }
 function update(time) {
-    var _a;
+    var _a, _b;
     if (lastTime === undefined)
         lastTime = time;
     let steps = Math.round((time - lastTime) / msPerStep);
@@ -133,20 +203,26 @@ function update(time) {
         return;
     document.querySelector('#accesses').textContent = state.value[0].toString();
     document.querySelector('#comparisons').textContent = state.value[1].toString();
+    document.querySelector('#status').textContent = state.value[4] ? `(${state.value[4]})` : null;
     ctx.clearRect(0, 0, can.width, can.height);
     for (let i = 0; i < barCount; i++) {
-        ctx.fillStyle = ((_a = state.value[2]) === null || _a === void 0 ? void 0 : _a.includes(i)) ? 'red' : 'black';
+        ctx.fillStyle = 'black';
+        if ((_a = state.value[2]) === null || _a === void 0 ? void 0 : _a.includes(i))
+            ctx.fillStyle = 'red';
+        if ((_b = state.value[3]) === null || _b === void 0 ? void 0 : _b.includes(i))
+            ctx.fillStyle = 'limegreen';
         ctx.fillRect(1.5 * i * barWidth, can.height, barWidth, -can.height * (0.1 + 0.9 * array[i] / (barCount - 1)));
     }
 }
 const can = document.querySelector('canvas');
 const ctx = can.getContext('2d');
-const barCount = 50;
+const barCount = Math.pow(2, 7);
 const barWidth = can.width / (1.5 * barCount - 0.5);
+const msPerStep = 20;
 const array = [];
 for (let i = 0; i < barCount; i++)
     array[i] = i;
 array.shuffle();
-let algorithm = insertion(array);
+let algorithm = quick(array);
 let lastTime;
 window.requestAnimationFrame(update);
