@@ -1,4 +1,4 @@
-function* quickHoare(a: number[]): Steps { // "median of random three"-pivot
+function* quickHoare(a: number[]): Steps {
 
     let accesses = 0
     let comparisons = 0
@@ -16,10 +16,13 @@ function* quickHoare(a: number[]): Steps { // "median of random three"-pivot
         // were minimized)
         let iPivot: number
         if (hi - lo < 25) {
+            // pivot: middle element
             accesses++
             iPivot = Math.floor((lo + hi) / 2)
         } else {
+            // pivot: median of three random elements
             // TODO: is it a problem that a[hi] can be chosen as the pivot?
+            // TODO: should the indices be chosen at random or as [lo, mid, hi]?
             const indices = [randomInt(lo, hi), randomInt(lo, hi), randomInt(lo, hi)]
 
             accesses++, comparisons++
