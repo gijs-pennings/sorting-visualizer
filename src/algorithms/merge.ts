@@ -11,7 +11,13 @@ function* merge(a: number[]): Steps { // bottom-up
             // merge a[i : i+width-1] and a[i+width : i+2*width-1] to b[..]
             const pMax = i + width
             if (pMax >= a.length) continue
-            if (a[pMax-1] <= a[pMax]) continue
+            // This is a good optimization for almost sorted data. In our case
+            // (shuffled data) it reduces the number of accesses at the cost of
+            // comparisons. Since the low number of comparisons (compared to
+            // quicksort) is one of merge sort's strengths, this optimization is
+            // disabled here.
+         /* accesses += 2, comparisons++
+            if (a[pMax-1] <= a[pMax]) continue */
             const qMax = Math.min(a.length, i + width * 2)
 
             let p = i
