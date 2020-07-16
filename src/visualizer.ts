@@ -23,7 +23,7 @@ function update(time: number) {
         if (state.value[3]?.includes(i)) ctx.fillStyle = 'limegreen'
         if (state.value[2]?.includes(i)) ctx.fillStyle = 'red'
         ctx.fillRect(
-            1.5 * i * barWidth,
+            padding + i * barWidthOuter,
             can.height,
             barWidth,
             -can.height * (0.1 + 0.9 * array[i] / (barCount - 1))
@@ -36,7 +36,9 @@ const can = document.querySelector('canvas')!
 const ctx = can.getContext('2d')!
 
 const barCount = 2**7 // (temp)
-const barWidth = can.width / (1.5 * barCount - 0.5)
+const barWidthOuter = Math.floor((can.width + 1) / barCount)
+const barWidth = barWidthOuter <= 3 ? barWidthOuter : barWidthOuter - 1
+const padding = Math.floor(0.5 * (can.width + 1 - barCount * barWidthOuter))
 const msPerStep = 20 // => 50 steps per second (temp)
 
 const array: number[] = []
