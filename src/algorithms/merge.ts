@@ -1,4 +1,4 @@
-function* mergeUp(a: number[]): Steps {
+function* merge(a: number[]): Steps { // bottom-up
 
     let accesses = 0
     let comparisons = 0
