@@ -25,7 +25,7 @@ function* quickHoare(a: number[]): Steps {
             // TODO: should the indices be chosen at random or as [lo, mid, hi]?
             const indices = [randomInt(lo, hi), randomInt(lo, hi), randomInt(lo, hi)]
 
-            accesses++, comparisons++
+            accesses += 2, comparisons++
             yield [accesses, comparisons, [indices[0], indices[1]], [], 'picking pivot']
             if (a[indices[0]] > a[indices[1]]) indices.swap(0, 1)
 
@@ -33,7 +33,7 @@ function* quickHoare(a: number[]): Steps {
             yield [accesses, comparisons, [indices[0], indices[2]], [], 'picking pivot']
             if (a[indices[0]] > a[indices[2]]) indices.swap(0, 2)
 
-            accesses++, comparisons++
+            comparisons++
             yield [accesses, comparisons, [indices[1], indices[2]], [], 'picking pivot']
             if (a[indices[1]] > a[indices[2]]) indices.swap(1, 2)
 
