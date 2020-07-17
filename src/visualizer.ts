@@ -35,7 +35,9 @@ function update(time: number) {
 const can = document.querySelector('canvas')!
 const ctx = can.getContext('2d')!
 
-const barCount = 2**7 // (temp)
+can.width = Math.min(800, screen.width)
+
+const barCount = 2**(screen.width < 500 ? 6 : 7) // (temp)
 const barWidthOuter = Math.floor((can.width + 1) / barCount)
 const barWidth = barWidthOuter <= 3 ? barWidthOuter : barWidthOuter - 1
 const padding = Math.floor(0.5 * (can.width + 1 - barCount * barWidthOuter))
