@@ -31,6 +31,37 @@ function* bubble(a) {
     }
     return [accesses, comparisons];
 }
+function* counting(a) {
+    let accesses = 0;
+    let comparisons = 0;
+    accesses++;
+    let iMax = 0;
+    for (let i = 1; i < a.length; i++) {
+        accesses++, comparisons++;
+        yield [accesses, comparisons, [iMax, i], [], 'finding max'];
+        if (a[i] > a[iMax])
+            iMax = i;
+    }
+    const count = new Array(a[iMax] + 1).fill(0);
+    accesses += count.length;
+    for (let i = 0; i < a.length; i++) {
+        accesses += 2;
+        count[a[i]]++;
+        yield [accesses, comparisons, [], [i], 'counting'];
+    }
+    accesses += 2 * (count.length - 1);
+    for (let i = 1; i < count.length; i++)
+        count[i] += count[i - 1];
+    const aCopy = Array.from(a);
+    for (let i = a.length - 1; i >= 0; i--) {
+        accesses += 4;
+        const x = aCopy[i];
+        const j = (count[x]--) - 1;
+        a[j] = x;
+        yield [accesses, comparisons, [], [j], 'ordering'];
+    }
+    return [accesses, comparisons];
+}
 function* insertion(a) {
     let accesses = 0;
     let comparisons = 0;
@@ -110,7 +141,7 @@ function* quickHoare(a) {
         }
         else {
             const indices = [randomInt(lo, hi), randomInt(lo, hi), randomInt(lo, hi)];
-            accesses++, comparisons++;
+            accesses += 2, comparisons++;
             yield [accesses, comparisons, [indices[0], indices[1]], [], 'picking pivot'];
             if (a[indices[0]] > a[indices[1]])
                 indices.swap(0, 1);
@@ -118,7 +149,7 @@ function* quickHoare(a) {
             yield [accesses, comparisons, [indices[0], indices[2]], [], 'picking pivot'];
             if (a[indices[0]] > a[indices[2]])
                 indices.swap(0, 2);
-            accesses++, comparisons++;
+            comparisons++;
             yield [accesses, comparisons, [indices[1], indices[2]], [], 'picking pivot'];
             if (a[indices[1]] > a[indices[2]])
                 indices.swap(1, 2);
@@ -208,6 +239,26 @@ function* shaker(a) {
     }
     return [accesses, comparisons];
 }
+function* shell(a) {
+    let accesses = 0;
+    let comparisons = 0;
+    const gaps = [1750, 701, 301, 132, 57, 23, 10, 4, 1];
+    for (const g of gaps)
+        for (let i = g; i < a.length; i++) {
+            accesses++;
+            let j = i;
+            for (; j >= g; j -= g) {
+                accesses++, comparisons++;
+                yield [accesses, comparisons, [j - g, j], [], undefined];
+                if (a[j - g] <= a[j])
+                    break;
+                accesses++;
+                a.swap(j - g, j);
+            }
+            accesses++;
+        }
+    return [accesses, comparisons];
+}
 function update(time) {
     var _a, _b;
     if (lastTime === undefined)
@@ -239,7 +290,8 @@ function update(time) {
 }
 const can = document.querySelector('canvas');
 const ctx = can.getContext('2d');
-const barCount = Math.pow(2, 7);
+can.width = Math.min(800, screen.width);
+const barCount = Math.pow(2, (screen.width < 500 ? 6 : 7));
 const barWidthOuter = Math.floor((can.width + 1) / barCount);
 const barWidth = barWidthOuter <= 3 ? barWidthOuter : barWidthOuter - 1;
 const padding = Math.floor(0.5 * (can.width + 1 - barCount * barWidthOuter));
