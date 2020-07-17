@@ -3,6 +3,8 @@ function* merge(a: number[]): Steps { // bottom-up
     let accesses = 0
     let comparisons = 0
 
+    // TODO: should allocation be counted as accesses?
+    //       or only when setting it to 0, for example?
     let b = new Array<number>(a.length)
 
     for (let width = 1; width < a.length; width *= 2)
