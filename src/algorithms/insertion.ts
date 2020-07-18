@@ -5,15 +5,30 @@ function* insertion(a: number[]): Steps {
 
     for (let i = 1; i < a.length; i++) {
         accesses++
-        let j = i
-        while (j > 0) {
+
+        // binary search for r = 1 + max { 0 ≤ j < i | a[j] ≤ a[i] }
+        let l = 0
+        let r = i
+        while (l < r) {
             accesses++, comparisons++
-            yield [accesses, comparisons, [j-1, j], [], undefined] // TODO: add green bars?
-            if (a[j-1] <= a[j]) break
-            accesses++
-            a.swap(j-1, j)
-            j--
+            // The colors are not consistent with other algorithms: red is used
+            // for the bounds, while the compared element (i.e. a[i]) is green.
+            // Nonetheless, I think this paints the clearest picture.
+            yield [accesses, comparisons, [l, r], [i], 'searching']
+            const m = Math.floor((l + r) / 2)
+            if (a[m] > a[i])
+                r = m
+            else
+                l = m + 1
         }
+
+        // move a[i] to a[r] without comparisons
+        for (let j = i; j > r; j--) {
+            accesses += 2
+            a.swap(j-1, j)
+            yield [accesses, comparisons, [], [j-1], 'ordering']
+        }
+
         accesses++
     }
 
@@ -23,19 +38,18 @@ function* insertion(a: number[]): Steps {
 
 /*
 
-The calculated number of accesses and comparisons do not correspond to the
-algorithm used. They are based on a slightly faster version (pseudocode below)
-which accesses the array less often. The algorithm above is used because it
-creates a more visually appealing animation.
-
-    for i in 1 until a.length
-        x ← a[i]
-        j ← i
-        while j > 0
-            y ← a[j-1]
-            if y ≤ x: break
-            a[j] ← y
-            j ← j - 1
-        a[j] ← x
+for i in 1 until a.length
+    x ← a[i]
+    l ← 0
+    r ← i
+    while l < r
+        m ← ⌊(l + r) / 2⌋
+        if a[m] > x
+            r ← m
+        else
+            l ← m + 1
+    for j in i down to r+1
+        a[j] ← a[j-1]
+    a[r] ← x
 
 */
