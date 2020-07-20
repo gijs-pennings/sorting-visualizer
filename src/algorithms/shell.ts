@@ -1,4 +1,4 @@
-function* shell(a: number[]): Steps {
+function* shell(a: number[]): StepGenerator {
 
     let accesses = 0
     let comparisons = 0

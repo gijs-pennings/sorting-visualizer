@@ -1,4 +1,4 @@
-function* counting(a: number[]): Steps {
+function* counting(a: number[]): StepGenerator {
 
     let accesses = 0
     let comparisons = 0

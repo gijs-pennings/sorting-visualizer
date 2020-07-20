@@ -1,4 +1,4 @@
-function* quickHoare(a: number[]): Steps {
+function* quickHoare(a: number[]): StepGenerator {
 
     let accesses = 0
     let comparisons = 0

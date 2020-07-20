@@ -1,4 +1,4 @@
-function* selection(a: number[]): Steps {
+function* selection(a: number[]): StepGenerator {
 
     let accesses = 0
     let comparisons = 0

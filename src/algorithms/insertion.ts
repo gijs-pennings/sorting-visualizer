@@ -1,4 +1,4 @@
-function* insertion(a: number[]): Steps {
+function* insertion(a: number[]): StepGenerator {
 
     let accesses = 0
     let comparisons = 0

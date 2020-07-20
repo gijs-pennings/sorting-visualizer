@@ -21,7 +21,11 @@ function randomInt(min: number, max: number) {
     return min + Math.floor(Math.random() * (max - min + 1))
 }
 
-type Steps = Generator<
+type Step = IteratorResult<
+    [number, number, number[], number[], string | undefined],
+    [number, number]
+>
+type StepGenerator = Generator<
     [number, number, number[], number[], string | undefined],
     [number, number],
     void // TODO: used correctly?

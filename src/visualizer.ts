@@ -2,7 +2,7 @@
 const barCount = 2**7
 const msPerStep = 20 // => 50 steps per second
 
-const calculateDimensions = function() {
+function calculateDimensions() {
     can.width = Math.min(700, window.innerWidth)
     let canWidthInner: number
 
@@ -20,30 +20,33 @@ const calculateDimensions = function() {
     can.height = Math.floor(0.5 * canWidthInner)
 }
 
+function reset() {
+    array.shuffle()
+    algorithm = quickHoare(array) // (temp)
+    algorithmState = undefined
+    lastTime = undefined
+}
+
 function update(time: number) {
 
-    if (lastTime === undefined) lastTime = time
-    let steps = Math.round((time - lastTime) / msPerStep)
-    lastTime += steps * msPerStep
+    window.requestAnimationFrame(update)
 
-    let state
-    while (steps-- > 0) {
-        state = algorithm.next()
-        if (state.done) break
+    if (playing) {
+        if (lastTime === undefined) lastTime = time
+        let steps = Math.round((time - lastTime) / msPerStep)
+        lastTime += steps * msPerStep
+
+        while (steps-- > 0) {
+            algorithmState = algorithm.next()
+            if (algorithmState.done) break
+        }
     }
-
-    if (state === undefined || !state.done) window.requestAnimationFrame(update)
-    if (state === undefined) return // iff steps === 0
-
-    document.querySelector('#accesses')!.textContent = state.value[0].toString()
-    document.querySelector('#comparisons')!.textContent = state.value[1].toString()
-    document.querySelector('#status')!.textContent = state.value[4] ? `(${state.value[4]})` : null
 
     ctx.clearRect(0, 0, can.width, can.height)
     for (let i = 0; i < barCount; i++) {
         ctx.fillStyle = 'black'
-        if (state.value[3]?.includes(i)) ctx.fillStyle = 'limegreen'
-        if (state.value[2]?.includes(i)) ctx.fillStyle = 'red'
+        if (algorithmState?.value?.[3]?.includes(i)) ctx.fillStyle = 'limegreen'
+        if (algorithmState?.value?.[2]?.includes(i)) ctx.fillStyle = 'red'
         ctx.fillRect(
             padding + i * barWidth,
             can.height,
@@ -64,10 +67,30 @@ let padding: number
 window.addEventListener('resize', calculateDimensions)
 calculateDimensions()
 
+// TODO: reset to original shuffled state?
+document.getElementById('reset')!.addEventListener('click', reset)
+
+let playing = false
+document.querySelectorAll('#pause, #play').forEach(e => e.addEventListener('click', function() {
+    document.getElementById('pause')!.classList.toggle('hidden')
+    playing = document.getElementById('play')!.classList.toggle('hidden')
+    lastTime = undefined
+}))
+
+document.getElementById('step')!.addEventListener('click', function() {
+    algorithmState = algorithm.next()
+})
+
+document.getElementById('skip')!.addEventListener('click', function() {
+    while (!algorithmState?.done) algorithmState = algorithm.next()
+})
+
 const array: number[] = []
 for (let i = 0; i < barCount; i++) array[i] = i
-array.shuffle()
 
-let algorithm = quickHoare(array)
+let algorithm: StepGenerator
+let algorithmState: Step | undefined
 let lastTime: number | undefined
+
+reset()
 window.requestAnimationFrame(update)
