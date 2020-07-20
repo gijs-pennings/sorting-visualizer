@@ -67,21 +67,27 @@ function* insertion(a) {
     let comparisons = 0;
     for (let i = 1; i < a.length; i++) {
         accesses++;
-        let j = i;
-        while (j > 0) {
+        let l = 0;
+        let r = i;
+        while (l < r) {
             accesses++, comparisons++;
-            yield [accesses, comparisons, [j - 1, j], [], undefined];
-            if (a[j - 1] <= a[j])
-                break;
-            accesses++;
+            yield [accesses, comparisons, [l, r], [i], 'searching'];
+            const m = Math.floor((l + r) / 2);
+            if (a[m] > a[i])
+                r = m;
+            else
+                l = m + 1;
+        }
+        for (let j = i; j > r; j--) {
+            accesses += 2;
             a.swap(j - 1, j);
-            j--;
+            yield [accesses, comparisons, [], [j - 1], 'ordering'];
         }
         accesses++;
     }
     return [accesses, comparisons];
 }
-function* merge(a) {
+function* mergeUp(a) {
     let accesses = 0;
     let comparisons = 0;
     let b = new Array(a.length);
@@ -259,47 +265,80 @@ function* shell(a) {
         }
     return [accesses, comparisons];
 }
-function update(time) {
-    var _a, _b;
-    if (lastTime === undefined)
-        lastTime = time;
-    let steps = Math.round((time - lastTime) / msPerStep);
-    lastTime += steps * msPerStep;
-    let state;
-    while (steps-- > 0) {
-        state = algorithm.next();
-        if (state.done)
-            break;
+const barCount = Math.pow(2, 7);
+const msPerStep = 20;
+function calculateDimensions() {
+    can.width = Math.min(700, window.innerWidth);
+    let canWidthInner;
+    if ((can.width + 1) / barCount >= 3) {
+        barWidth = Math.floor((can.width + 1) / barCount);
+        barWidthInner = barWidth - 1;
+        canWidthInner = barCount * barWidth - 1;
     }
-    if (state === undefined || !state.done)
-        window.requestAnimationFrame(update);
-    if (state === undefined)
-        return;
-    document.querySelector('#accesses').textContent = state.value[0].toString();
-    document.querySelector('#comparisons').textContent = state.value[1].toString();
-    document.querySelector('#status').textContent = state.value[4] ? `(${state.value[4]})` : null;
+    else {
+        barWidth = Math.floor(can.width / barCount);
+        barWidthInner = barWidth;
+        canWidthInner = barCount * barWidth;
+    }
+    padding = Math.floor(0.5 * (can.width - canWidthInner));
+    can.height = Math.floor(0.5 * canWidthInner);
+}
+function reset() {
+    array.shuffle();
+    algorithm = quickHoare(array);
+    algorithmState = undefined;
+    lastTime = undefined;
+}
+function update(time) {
+    var _a, _b, _c, _d;
+    window.requestAnimationFrame(update);
+    if (playing) {
+        if (lastTime === undefined)
+            lastTime = time;
+        let steps = Math.round((time - lastTime) / msPerStep);
+        lastTime += steps * msPerStep;
+        while (steps-- > 0) {
+            algorithmState = algorithm.next();
+            if (algorithmState.done)
+                break;
+        }
+    }
     ctx.clearRect(0, 0, can.width, can.height);
     for (let i = 0; i < barCount; i++) {
         ctx.fillStyle = 'black';
-        if ((_a = state.value[3]) === null || _a === void 0 ? void 0 : _a.includes(i))
+        if ((_b = (_a = algorithmState === null || algorithmState === void 0 ? void 0 : algorithmState.value) === null || _a === void 0 ? void 0 : _a[3]) === null || _b === void 0 ? void 0 : _b.includes(i))
             ctx.fillStyle = 'limegreen';
-        if ((_b = state.value[2]) === null || _b === void 0 ? void 0 : _b.includes(i))
+        if ((_d = (_c = algorithmState === null || algorithmState === void 0 ? void 0 : algorithmState.value) === null || _c === void 0 ? void 0 : _c[2]) === null || _d === void 0 ? void 0 : _d.includes(i))
             ctx.fillStyle = 'red';
-        ctx.fillRect(padding + i * barWidthOuter, can.height, barWidth, -can.height * (0.1 + 0.9 * array[i] / (barCount - 1)));
+        ctx.fillRect(padding + i * barWidth, can.height, barWidthInner, -can.height * (0.1 + 0.9 * array[i] / (barCount - 1)));
     }
 }
 const can = document.querySelector('canvas');
 const ctx = can.getContext('2d');
-can.width = Math.min(800, screen.width);
-const barCount = Math.pow(2, (screen.width < 500 ? 6 : 7));
-const barWidthOuter = Math.floor((can.width + 1) / barCount);
-const barWidth = barWidthOuter <= 3 ? barWidthOuter : barWidthOuter - 1;
-const padding = Math.floor(0.5 * (can.width + 1 - barCount * barWidthOuter));
-const msPerStep = 20;
+let barWidth;
+let barWidthInner;
+let padding;
+window.addEventListener('resize', calculateDimensions);
+calculateDimensions();
+document.getElementById('reset').addEventListener('click', reset);
+let playing = false;
+document.querySelectorAll('#pause, #play').forEach(e => e.addEventListener('click', function () {
+    document.getElementById('pause').classList.toggle('hidden');
+    playing = document.getElementById('play').classList.toggle('hidden');
+    lastTime = undefined;
+}));
+document.getElementById('step').addEventListener('click', function () {
+    algorithmState = algorithm.next();
+});
+document.getElementById('skip').addEventListener('click', function () {
+    while (!(algorithmState === null || algorithmState === void 0 ? void 0 : algorithmState.done))
+        algorithmState = algorithm.next();
+});
 const array = [];
 for (let i = 0; i < barCount; i++)
     array[i] = i;
-array.shuffle();
-let algorithm = quickHoare(array);
+let algorithm;
+let algorithmState;
 let lastTime;
+reset();
 window.requestAnimationFrame(update);

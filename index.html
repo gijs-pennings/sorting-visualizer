@@ -3,12 +3,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 <link rel="stylesheet" href="style.css">
 <script src="bundle.js" defer></script>
 <title>Visualizing Sorting Algorithms</title>
 
-array accesses: <span id="accesses"></span>,
-comparisons: <span id="comparisons"></span><br>
-<span id="status"></span>
+<!-- TODO: no. accesses and comparisons -->
 
-<canvas height="400"></canvas>
+<span id="reset" class="material-icons">skip_previous</span>
+<span id="pause" class="material-icons hidden">pause</span>
+<span id="play"  class="material-icons">play_arrow</span>
+<span id="step"  class="material-icons">redo</span>
+<span id="skip"  class="material-icons">skip_next</span><br>
+
+<canvas></canvas>
