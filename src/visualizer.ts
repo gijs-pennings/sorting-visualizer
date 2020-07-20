@@ -1,3 +1,25 @@
+// constants (temp)
+const barCount = 2**7
+const msPerStep = 20 // => 50 steps per second
+
+const calculateDimensions = function() {
+    can.width = Math.min(700, window.innerWidth)
+    let canWidthInner: number
+
+    if ((can.width + 1) / barCount >= 3) {
+        barWidth = Math.floor((can.width + 1) / barCount)
+        barWidthInner = barWidth - 1
+        canWidthInner = barCount * barWidth - 1
+    } else {
+        barWidth = Math.floor(can.width / barCount)
+        barWidthInner = barWidth
+        canWidthInner = barCount * barWidth
+    }
+
+    padding = Math.floor(0.5 * (can.width - canWidthInner))
+    can.height = Math.floor(0.5 * canWidthInner)
+}
+
 function update(time: number) {
 
     if (lastTime === undefined) lastTime = time
@@ -23,9 +45,9 @@ function update(time: number) {
         if (state.value[3]?.includes(i)) ctx.fillStyle = 'limegreen'
         if (state.value[2]?.includes(i)) ctx.fillStyle = 'red'
         ctx.fillRect(
-            padding + i * barWidthOuter,
+            padding + i * barWidth,
             can.height,
-            barWidth,
+            barWidthInner,
             -can.height * (0.1 + 0.9 * array[i] / (barCount - 1))
         )
     }
@@ -35,13 +57,12 @@ function update(time: number) {
 const can = document.querySelector('canvas')!
 const ctx = can.getContext('2d')!
 
-can.width = Math.min(800, screen.width)
+let barWidth: number
+let barWidthInner: number
+let padding: number
 
-const barCount = 2**(screen.width < 500 ? 6 : 7) // (temp)
-const barWidthOuter = Math.floor((can.width + 1) / barCount)
-const barWidth = barWidthOuter <= 3 ? barWidthOuter : barWidthOuter - 1
-const padding = Math.floor(0.5 * (can.width + 1 - barCount * barWidthOuter))
-const msPerStep = 20 // => 50 steps per second (temp)
+window.addEventListener('resize', calculateDimensions)
+calculateDimensions()
 
 const array: number[] = []
 for (let i = 0; i < barCount; i++) array[i] = i
