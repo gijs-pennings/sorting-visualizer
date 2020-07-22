@@ -18,6 +18,17 @@ function calculateDimensions() {
 
     padding = Math.floor(0.5 * (can.width - canWidthInner))
     can.height = Math.floor(0.5 * canWidthInner)
+
+    // The container may not align pixel perfectly to the bars, since the left
+    // padding could be smaller than the right padding due to flooring. However,
+    // using the full width and adding paddings allowed the text to overflow
+    // into the right padding, messing up the overflow calculation below.
+    div.style.width = canWidthInner + 'px'
+
+    const hideOnOverflow = div.querySelectorAll('.hide-on-overflow')
+    hideOnOverflow.forEach(e => (e as HTMLElement).style.removeProperty('display'))
+    if (div.scrollWidth > div.clientWidth)
+        hideOnOverflow.forEach(e => (e as HTMLElement).style.display = 'none')
 }
 
 function reset() {
@@ -42,6 +53,12 @@ function update(time: number) {
         }
     }
 
+    if (algorithmState?.value) {
+        document.getElementById('accesses')!.textContent = algorithmState.value[0].toString()
+        document.getElementById('comparisons')!.textContent = algorithmState.value[1].toString()
+     // document.getElementById('state')!.textContent = algorithmState.value[4] ? ', ' + algorithmState.value[4] : null
+    }
+
     ctx.clearRect(0, 0, can.width, can.height)
     for (let i = 0; i < barCount; i++) {
         ctx.fillStyle = 'black'
@@ -57,6 +74,7 @@ function update(time: number) {
 
 }
 
+const div = document.querySelector('div')!
 const can = document.querySelector('canvas')!
 const ctx = can.getContext('2d')!
 

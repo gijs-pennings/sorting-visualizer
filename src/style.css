@@ -13,8 +13,18 @@ head {
 }
 
 body {
-    /* hack to remove white space: https://stackoverflow.com/a/5647640 */
-    font-size: 0;
+    font-size: 0; /* remove white space: https://stackoverflow.com/a/5647640 */
+}
+
+div {
+    display: block;
+    font-size: 16px;
+    height: 24px;
+    line-height: 24px; /* = height, center text vertically */
+    margin: 0 auto; /* center horizontally */
+    position: relative;
+    text-align: left;
+    white-space: nowrap;
 }
 
 .material-icons {
@@ -24,10 +34,17 @@ body {
     user-select: none;
 }
 
+.material-icons:hover {
+    color: black;
+}
+
 .material-icons.hidden {
     display: none;
 }
 
-.material-icons:hover {
-    color: black;
+div > .material-icons {
+    font-size: 24px;
+    position: absolute; /* instead of float: right, since that would push the
+                           icon onto a second line if the text was too long.  */
+    right: 0;
 }
