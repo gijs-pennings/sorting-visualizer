@@ -14,7 +14,7 @@
 <span id="step"  class="material-icons">redo</span>
 <span id="skip"  class="material-icons">skip_next</span>
 
-<div>
+<div class="header">
     <span id="algorithm">Quick Sort</span>
     (<span id="accesses">0</span><span class="hide-on-overflow"> accesses</span>,
     <span id="comparisons">0</span><span class="hide-on-overflow"> comparisons</span><!--
@@ -22,6 +22,27 @@
     The icon is not part of the document flow since it has an absolute position.
     To correctly detect an overflow, a 'ghost' element of equal width is added.
  --><span class="hspace24"></span>
-    <span class="material-icons">close</span>
+    <span class="material-icons close">close</span>
 </div>
 <canvas></canvas>
+
+<span class="vspace24"></span>
+<span id="add" class="material-icons">add</span>
+
+<div class="dialog">
+   Choose algorithm:
+   <span class="material-icons close">close</span>
+   <ol>
+      <li>Bubble Sort</li>
+      <li>Bubble Sort (bidirectional)</li>
+      <li>Heap Sort</li>
+      <li>Insertion Sort</li>
+      <li>Insertion Sort (binary search)</li>
+      <li>Merge Sort</li>
+      <li>Quick Sort (Hoare)</li>
+      <li>Quick Sort (Lomuto)</li>
+      <li>Selection Sort</li>
+      <li>Selection Sort (bidirectional)</li>
+      <li>Shell Sort</li>
+   </ol>
+</div>

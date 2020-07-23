@@ -61,7 +61,7 @@ function update(time: number) {
 
     ctx.clearRect(0, 0, can.width, can.height)
     for (let i = 0; i < barCount; i++) {
-        ctx.fillStyle = 'black'
+        ctx.fillStyle = '#111'
         if (algorithmState?.value?.[3]?.includes(i)) ctx.fillStyle = 'limegreen'
         if (algorithmState?.value?.[2]?.includes(i)) ctx.fillStyle = 'red'
         ctx.fillRect(
@@ -102,6 +102,13 @@ document.getElementById('step')!.addEventListener('click', function() {
 document.getElementById('skip')!.addEventListener('click', function() {
     while (!algorithmState?.done) algorithmState = algorithm.next()
 })
+
+// TODO: yuck
+document.querySelectorAll('#add, .dialog > .close').forEach(e =>
+    e.addEventListener('click', function() {
+        (document.querySelector('.dialog') as HTMLElement).style.display = e.id === 'add' ? 'block' : ''
+    })
+)
 
 const array: number[] = []
 for (let i = 0; i < barCount; i++) array[i] = i
