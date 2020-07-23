@@ -5,15 +5,12 @@
 
 :root {
     font-family: 'Open Sans', sans-serif;
+    font-size: 0; /* remove white space: https://stackoverflow.com/a/5647640 */
     text-align: center;
 }
 
 head {
     display: none;
-}
-
-body {
-    font-size: 0; /* remove white space: https://stackoverflow.com/a/5647640 */
 }
 
 div {
@@ -27,11 +24,59 @@ div {
     white-space: nowrap;
 }
 
+canvas {
+    display: block;
+    margin: 0 auto; /* center horizontally */
+}
+
+ol {
+    --color: #009acd;
+    --color-dark: #00688b;
+    --item-height: 2.5em;
+}
+
+li {
+    border: 2px solid var(--color);
+    border-radius: 4px;
+    box-sizing: content-box; /* so text can be centered without calc(..) */
+    color: var(--color);
+    cursor: pointer;
+    display: block;
+    font-size: 16px;
+    height: var(--item-height);
+    line-height: var(--item-height); /* = height, center text vertically */
+    padding-left: .75em;
+    text-align: left;
+    transition-property: background-color, color;
+    transition-duration: .1s;
+    width: 20em;
+}
+
+li:not(:last-child) {
+    margin-bottom: 4px;
+}
+
+li:hover {
+    background-color: var(--color);
+    border-bottom: 4px solid var(--color-dark);
+    color: white;
+    margin-bottom: 2px; /* =4-2 to compensate for thicker border */
+    transform: translateY(-2px);
+}
+
+li:active {
+    border-bottom: 2px solid var(--color-dark);
+    margin-bottom: 4px;
+    transform: none;
+}
+
 .material-icons {
-    color: rgba(0, 0, 0, 0.54); /* md-dark */
+    color: rgba(0, 0, 0, .54); /* md-dark */
     cursor: pointer;
     font-size: 36px; /* md-36 */
     user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
 }
 
 .material-icons:hover {
@@ -47,4 +92,16 @@ div > .material-icons {
     position: absolute; /* instead of float: right, since that would push the
                            icon onto a second line if the text was too long.  */
     right: 0;
+}
+
+.hspace24 {
+    display: inline-block;
+    height: 1px;
+    width: 24px;
+}
+
+.vspace24 {
+    display: block;
+    height: 24px;
+    width: 1px;
 }

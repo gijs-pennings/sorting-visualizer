@@ -8,13 +8,11 @@
 <script src="bundle.js" defer></script>
 <title>Visualizing Sorting Algorithms</title>
 
-<!-- TODO: no. accesses and comparisons -->
-
 <span id="reset" class="material-icons">skip_previous</span>
 <span id="pause" class="material-icons hidden">pause</span>
 <span id="play"  class="material-icons">play_arrow</span>
 <span id="step"  class="material-icons">redo</span>
-<span id="skip"  class="material-icons">skip_next</span><br>
+<span id="skip"  class="material-icons">skip_next</span>
 
 <div>
     <span id="algorithm">Quick Sort</span>
@@ -23,7 +21,7 @@
  --><span id="state" class="hide-on-overflow"></span>)<!--
     The icon is not part of the document flow since it has an absolute position.
     To correctly detect an overflow, a 'ghost' element of equal width is added.
- --><span style="display: inline-block; height: 8px; width: 24px"></span>
+ --><span class="hspace24"></span>
     <span class="material-icons">close</span>
 </div>
 <canvas></canvas>
