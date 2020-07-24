@@ -14,7 +14,6 @@ function addAlgorithm(algName: string, funName: string) {
 
     const header = newElt('div', { class: 'header' })
     const canvas = newElt('canvas')
-    const vspace = newElt('span', { class: 'vspace24' })
 
     // TODO: add field for state? 'merging', 'searching', etc.
     header.appendChild(document.createTextNode(algName + ' ('))
@@ -29,13 +28,11 @@ function addAlgorithm(algName: string, funName: string) {
         algs.splice(algs.indexOf(tuple), 1) // remove *before* anything has been dismantled
         header.remove()
         canvas.remove()
-        vspace.remove()
     }, text: 'close' }))
 
     const divider = document.querySelector('#add')!
     divider.parentNode!.insertBefore(header, divider)
     divider.parentNode!.insertBefore(canvas, divider)
-    divider.parentNode!.insertBefore(vspace, divider)
 
     setDimensions()
     toggleDialog()
