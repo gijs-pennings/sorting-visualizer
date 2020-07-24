@@ -8,12 +8,30 @@
 <script src="bundle.js" defer></script>
 <title>Visualizing Sorting Algorithms</title>
 
-<!-- TODO: no. accesses and comparisons -->
-
 <span id="reset" class="material-icons">skip_previous</span>
 <span id="pause" class="material-icons hidden">pause</span>
 <span id="play"  class="material-icons">play_arrow</span>
 <span id="step"  class="material-icons">redo</span>
-<span id="skip"  class="material-icons">skip_next</span><br>
+<span id="skip"  class="material-icons">skip_next</span>
 
-<canvas></canvas>
+<span class="vspace24"></span>
+
+<span id="add" class="material-icons">add</span>
+
+<div class="dialog">
+   Choose algorithm:
+   <span class="material-icons close">close</span>
+   <ol>
+      <li onclick="addAlgorithm('Bubble Sort', 'bubble')">Bubble Sort</li>
+      <li onclick="addAlgorithm('Bubble Sort, Bi', 'shaker')">Bubble Sort (bidirectional)</li>
+      <li>Heap Sort</li>
+      <li>Insertion Sort</li>
+      <li onclick="addAlgorithm('Insertion Sort, BS', 'insertion')">Insertion Sort (binary search)</li>
+      <li onclick="addAlgorithm('Merge Sort', 'mergeUp')">Merge Sort</li>
+      <li onclick="addAlgorithm('Quick Sort', 'quickHoare')">Quick Sort (Hoare)</li>
+      <li>Quick Sort (Lomuto)</li>
+      <li onclick="addAlgorithm('Selection Sort', 'selection')">Selection Sort</li>
+      <li>Selection Sort (bidirectional)</li>
+      <li onclick="addAlgorithm('Shell Sort', 'shell')">Shell Sort</li>
+   </ol>
+</div>
