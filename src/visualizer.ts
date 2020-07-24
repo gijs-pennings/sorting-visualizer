@@ -1,121 +1,169 @@
-// constants (temp)
+// (temp)
 const barCount = 2**7
 const msPerStep = 20 // => 50 steps per second
 
-function calculateDimensions() {
-    can.width = Math.min(700, window.innerWidth)
-    let canWidthInner: number
+function addAlgorithm(algName: string, funName: string) {
+    const a = array.slice() // shallow copy
+    const f = (window as { [key: string]: any })[funName]
 
-    if ((can.width + 1) / barCount >= 3) {
-        barWidth = Math.floor((can.width + 1) / barCount)
-        barWidthInner = barWidth - 1
-        canWidthInner = barCount * barWidth - 1
-    } else {
-        barWidth = Math.floor(can.width / barCount)
-        barWidthInner = barWidth
-        canWidthInner = barCount * barWidth
+    const tuple: RunningAlgorithm = {
+        array: a,
+        function: f,
+        generator: f(a)
     }
 
-    padding = Math.floor(0.5 * (can.width - canWidthInner))
-    can.height = Math.floor(0.5 * canWidthInner)
+    const header = newElt('div', { class: 'header' })
+    const canvas = newElt('canvas')
+    const vspace = newElt('span', { class: 'vspace24' })
 
-    // The container may not align pixel perfectly to the bars, since the left
-    // padding could be smaller than the right padding due to flooring. However,
-    // using the full width and adding paddings allowed the text to overflow
-    // into the right padding, messing up the overflow calculation below.
-    div.style.width = canWidthInner + 'px'
+    // TODO: add field for state? 'merging', 'searching', etc.
+    header.appendChild(document.createTextNode(algName + ' ('))
+    header.appendChild(newElt('span', { id: 'accesses', text: '0' }))
+    header.appendChild(newElt('span', { class: 'hide-on-overflow', text: ' accesses' }))
+    header.appendChild(document.createTextNode(', '))
+    header.appendChild(newElt('span', { id: 'comparisons', text: '0' }))
+    header.appendChild(newElt('span', { class: 'hide-on-overflow', text: ' comparisons' }))
+    header.appendChild(document.createTextNode(')'))
+    header.appendChild(newElt('span', { class: 'hspace24' })) // since the icon is not part of the document flow (due to its absolute position), a 'ghost' element of equal width is added to correctly detect an overflow
+    header.appendChild(newElt('span', { class: 'material-icons close', click: function() {
+        algs.splice(algs.indexOf(tuple), 1) // remove *before* anything has been dismantled
+        header.remove()
+        canvas.remove()
+        vspace.remove()
+    }, text: 'close' }))
 
-    const hideOnOverflow = div.querySelectorAll('.hide-on-overflow')
-    hideOnOverflow.forEach(e => (e as HTMLElement).style.removeProperty('display'))
-    if (div.scrollWidth > div.clientWidth)
-        hideOnOverflow.forEach(e => (e as HTMLElement).style.display = 'none')
+    const divider = document.querySelector('#add')!
+    divider.parentNode!.insertBefore(header, divider)
+    divider.parentNode!.insertBefore(canvas, divider)
+    divider.parentNode!.insertBefore(vspace, divider)
+
+    setDimensions()
+    toggleDialog()
+
+    algs.push(tuple) // add *after* everything else has been set up
 }
+function calculateDimensions() {
+    dims.canWidth = Math.min(700, window.innerWidth)
 
-function reset() {
-    array.shuffle()
-    algorithm = quickHoare(array) // (temp)
-    algorithmState = undefined
-    lastTime = undefined
+    if ((dims.canWidth + 1) / barCount >= 3) {
+        dims.barWidth = Math.floor((dims.canWidth + 1) / barCount)
+        dims.barWidthInner = dims.barWidth - 1
+        dims.canWidthInner = barCount * dims.barWidth - 1
+    } else {
+        dims.barWidth = Math.floor(dims.canWidth / barCount)
+        dims.barWidthInner = dims.barWidth
+        dims.canWidthInner = barCount * dims.barWidth
+    }
+
+    dims.canHeight = Math.floor(0.5 * dims.canWidthInner)
+    dims.canPadding = Math.floor(0.5 * (dims.canWidth - dims.canWidthInner)) // left
+
+    setDimensions()
 }
+function drawAll() {
+    for (let i = 0; i < algs.length; i++) {
+        const h = document.querySelectorAll('.header')[i]
+        const c = document.querySelectorAll('canvas')[i].getContext('2d')!
 
-function update(time: number) {
+        const a = algs[i].array
+        const s = algs[i].lastStep?.value // value itself is never undefined, but lastStep may be
 
-    window.requestAnimationFrame(update)
+        h.querySelector('#accesses')!.textContent = s?.[0].toString() ?? '0'
+        h.querySelector('#comparisons')!.textContent = s?.[1].toString() ?? '0'
+
+        c.clearRect(0, 0, dims.canWidth, dims.canHeight)
+
+        for (let j = 0; j < a.length; j++) {
+            c.fillStyle = '#111'
+            if (s?.[3]?.includes(j)) c.fillStyle = 'limegreen'
+            if (s?.[2]?.includes(j)) c.fillStyle = 'red'
+
+            c.fillRect(
+                dims.canPadding + j * dims.barWidth,
+                dims.canHeight,
+                dims.barWidthInner,
+                -dims.canHeight * (0.1 + 0.9 * a[j] / (a.length - 1))
+            )
+        }
+    }
+}
+function onFrame(time: number) {
+    window.requestAnimationFrame(onFrame)
 
     if (playing) {
-        if (lastTime === undefined) lastTime = time
+        if (!lastTime) lastTime = time
         let steps = Math.round((time - lastTime) / msPerStep)
         lastTime += steps * msPerStep
 
-        while (steps-- > 0) {
-            algorithmState = algorithm.next()
-            if (algorithmState.done) break
-        }
+        for (const a of algs)
+            for (let i = 0; i < steps && !a.lastStep?.done; i++)
+                a.lastStep = a.generator.next()
     }
 
-    if (algorithmState?.value) {
-        document.getElementById('accesses')!.textContent = algorithmState.value[0].toString()
-        document.getElementById('comparisons')!.textContent = algorithmState.value[1].toString()
-     // document.getElementById('state')!.textContent = algorithmState.value[4] ? ', ' + algorithmState.value[4] : null
-    }
+    drawAll()
+}
+function setDimensions() {
+    (document.querySelectorAll('.header') as NodeListOf<HTMLElement>).forEach(h => {
+        // The header may not align perfectly to the canvas, since the left
+        // padding could be smaller than the right due to flooring. However,
+        // using the full width and adding paddings allows the text to overflow
+        // into the padding, messing up the overflow calculation below.
+        h.style.width = dims.canWidthInner + 'px'
 
-    ctx.clearRect(0, 0, can.width, can.height)
-    for (let i = 0; i < barCount; i++) {
-        ctx.fillStyle = '#111'
-        if (algorithmState?.value?.[3]?.includes(i)) ctx.fillStyle = 'limegreen'
-        if (algorithmState?.value?.[2]?.includes(i)) ctx.fillStyle = 'red'
-        ctx.fillRect(
-            padding + i * barWidth,
-            can.height,
-            barWidthInner,
-            -can.height * (0.1 + 0.9 * array[i] / (barCount - 1))
-        )
-    }
+        const hide: NodeListOf<HTMLElement> = h.querySelectorAll('.hide-on-overflow')
+        hide.forEach(e => e.style.removeProperty('display')) // reset so scrollWidth can be calculated
+        if (h.scrollWidth > h.clientWidth) hide.forEach(e => e.style.display = 'none')
+    })
 
+    document.querySelectorAll('canvas').forEach(c => {
+        c.width = dims.canWidth
+        c.height = dims.canHeight
+    })
+}
+function toggleDialog() {
+    const d = document.querySelector('.dialog') as HTMLElement
+    d.style.display = d.style.display ? '' : 'block'
+}
+function togglePlaying() {
+    lastTime = undefined
+    document.querySelector('#pause')!.classList.toggle('hidden')
+    playing = document.querySelector('#play')!.classList.toggle('hidden')
 }
 
-const div = document.querySelector('div')!
-const can = document.querySelector('canvas')!
-const ctx = can.getContext('2d')!
-
-let barWidth: number
-let barWidthInner: number
-let padding: number
-
 window.addEventListener('resize', calculateDimensions)
-calculateDimensions()
-
-// TODO: reset to original shuffled state?
-document.getElementById('reset')!.addEventListener('click', reset)
-
-let playing = false
-document.querySelectorAll('#pause, #play').forEach(e => e.addEventListener('click', function() {
-    document.getElementById('pause')!.classList.toggle('hidden')
-    playing = document.getElementById('play')!.classList.toggle('hidden')
-    lastTime = undefined
-}))
-
-document.getElementById('step')!.addEventListener('click', function() {
-    algorithmState = algorithm.next()
+document.querySelector('#reset')!.addEventListener('click', function() {
+    if (playing) togglePlaying() // => pause
+    for (const a of algs) {
+        a.array = array.slice() // shallow copy
+        a.generator = a.function(a.array)
+        a.lastStep = undefined
+    }
 })
-
-document.getElementById('skip')!.addEventListener('click', function() {
-    while (!algorithmState?.done) algorithmState = algorithm.next()
+document.querySelector('#pause')!.addEventListener('click', togglePlaying)
+document.querySelector('#play')!.addEventListener('click', togglePlaying)
+document.querySelector('#step')!.addEventListener('click', function() {
+    for (const a of algs)
+        if (!a.lastStep?.done)
+            a.lastStep = a.generator.next()
 })
+document.querySelector('#skip')!.addEventListener('click', function() {
+    if (playing) togglePlaying() // => pause
+    for (const a of algs)
+        while (!a.lastStep?.done)
+            a.lastStep = a.generator.next()
+})
+document.querySelector('#add')!.addEventListener('click', toggleDialog)
+document.querySelector('.dialog > .close')!.addEventListener('click', toggleDialog)
 
-// TODO: yuck
-document.querySelectorAll('#add, .dialog > .close').forEach(e =>
-    e.addEventListener('click', function() {
-        (document.querySelector('.dialog') as HTMLElement).style.display = e.id === 'add' ? 'block' : ''
-    })
-)
-
+const algs: RunningAlgorithm[] = []
 const array: number[] = []
-for (let i = 0; i < barCount; i++) array[i] = i
-
-let algorithm: StepGenerator
-let algorithmState: Step | undefined
+const dims: { [key: string]: number } = {}
 let lastTime: number | undefined
+let playing = false
 
-reset()
-window.requestAnimationFrame(update)
+// (temp)
+for (let i = 0; i < barCount; i++) array[i] = i
+array.shuffle()
+
+calculateDimensions()
+window.requestAnimationFrame(onFrame)
