@@ -20,7 +20,7 @@ function* insertion(a: number[]): StepGenerator {
 }
 /*
 
-for i in a.length - 2 down to 0
+for i in a.length-2 down to 0
     x ← a[i]
     j ← i+1
     while j < a.length
@@ -37,22 +37,22 @@ function* insertionBS(a: number[]): StepGenerator {
     let accesses = 0
     let comparisons = 0
 
-    for (let i = a.length - 2; i >= 0; i--) {
+    for (let i = a.length-2; i >= 0; i--) {
         accesses++
 
         // bounds are inclusive for prettier visualization
-        let l = i + 1
-        let r = a.length - 1
+        let l = i+1
+        let r = a.length-1
 
-        // binary search for l = min { i < j ≤ a.length | a[i] ≤ a[j] }
+        // binary search for l = min { i < j ≤ a.length | ∀ j ≤ k < a.length : a[i] ≤ a[k] }
         while (l <= r) {
             const m = Math.ceil((l + r) / 2)
             accesses++, comparisons++
             yield [accesses, comparisons, [i, m], [l, r], undefined]
             if (a[m] < a[i])
-                l = m + 1
+                l = m+1
             else
-                r = m - 1
+                r = m-1
         }
 
         // move a[i] to a[l-1] without comparisons

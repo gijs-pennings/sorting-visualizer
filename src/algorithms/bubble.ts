@@ -45,13 +45,13 @@ function* bubbleBi(a: number[]): StepGenerator {
 
     // inclusive
     let iStart = 0
-    let iEnd = a.length - 1
+    let iEnd = a.length-1
 
     while (iStart < iEnd /* i.e. there are >=2 unsorted elements */) {
         let iNew = iStart
 
         accesses++
-        for (let i = iStart + 1; i <= iEnd; i++) {
+        for (let i = iStart+1; i <= iEnd; i++) {
             accesses++, comparisons++
             yield [accesses, comparisons, [i-1, i], [], undefined]
             accesses++

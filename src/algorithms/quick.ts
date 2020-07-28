@@ -4,7 +4,7 @@ function* quickHoare(a: number[]): StepGenerator {
     let comparisons = 0
 
     const stack: number[] = [] // all ranges are inclusive
-    if (a.length > 1) stack.push(0, a.length - 1)
+    if (a.length > 1) stack.push(0, a.length-1)
 
     while (stack.length > 0) {
         // reverse order!
@@ -15,10 +15,10 @@ function* quickHoare(a: number[]): StepGenerator {
         // distinct, shuffled data where the number of accesses and comparisons
         // were minimized)
         let iPivot: number
-        if (hi - lo < 25) {
+        if (hi-lo < 25) {
             // pivot: middle element
             accesses++
-            iPivot = Math.floor((lo + hi) / 2)
+            iPivot = Math.floor((lo+hi) / 2)
         } else {
             // pivot: median of three random elements
             // TODO: is it a problem that a[hi] can be chosen as the pivot?
@@ -42,8 +42,8 @@ function* quickHoare(a: number[]): StepGenerator {
         const pivot = a[iPivot]
 
         // partitioning
-        let i = lo - 1
-        let j = hi + 1
+        let i = lo-1
+        let j = hi+1
 
         while (true) {
             do {
@@ -66,8 +66,8 @@ function* quickHoare(a: number[]): StepGenerator {
         }
 
         // recursion (reverse order)
-        if (j + 1 < hi) stack.push(j + 1, hi)
-        if (   lo <  j) stack.push(   lo,  j)
+        if (j+1 < hi) stack.push(j+1, hi)
+        if ( lo <  j) stack.push( lo,  j)
     }
 
     return [accesses, comparisons] as [number, number]
