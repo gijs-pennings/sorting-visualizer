@@ -8,7 +8,7 @@ function* selection(a: number[]): StepGenerator {
         for (let j = 1; j <= i; j++) {
             accesses++, comparisons++
             yield [accesses, comparisons, [jMax, j], [], undefined]
-            if (a[j] >= a[jMax]) jMax = j // due to if, bigger is better
+            if (a[j] >= a[jMax]) jMax = j
         }
         if (i !== jMax) {
             accesses += 3
@@ -39,11 +39,17 @@ function* selectionDbl(a: number[]): StepGenerator {
     let comparisons = 0
 
     for (let i = 0; i < Math.floor(a.length / 2); i++) {
+        // Initialize maximum and minimum values. Due to the bound for i, there
+        // are at least two unsorted elements in the array. Note that a single
+        // element is trivially sorted.
         accesses += 2, comparisons++
         yield [accesses, comparisons, [i, i+1], [], undefined]
         let jMax = a[i] >  a[i+1] ? i : i+1
         let jMin = a[i] <= a[i+1] ? i : i+1
 
+        // Compare the next elements in pairs. Only three comparisons are needed
+        // per pair to determine the maximum and minimum. In case of duplicates,
+        // the rightmost maximum and leftmost minimum are taken.
         const jLast = a.length-i-1
         for (let j = i+2; j < jLast; j += 2) {
             accesses += 2, comparisons++
@@ -67,6 +73,8 @@ function* selectionDbl(a: number[]): StepGenerator {
             }
         }
 
+        // If the array is of odd length, the last element is not part of a pair
+        // and must be compared separately.
         if (a.length % 2 === 1) {
             accesses++, comparisons++
             yield [accesses, comparisons, [jMax, jLast], [], undefined]
@@ -96,6 +104,8 @@ function* selectionDbl(a: number[]): StepGenerator {
             accesses += 2
         }
 
+        // Move the maximum and minimum to their final position. Be careful
+        // swapping elements that are in "each other's" final position.
         if (jMax === i) {
             a.swap(jMax, jLast)
             if (jMin !== jLast) a.swap(jMin, i)
