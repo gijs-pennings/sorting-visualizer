@@ -23,7 +23,7 @@ div {
 .header {
     height: 24px;
     line-height: 24px; /* = height, center text vertically */
-    margin: 0 auto; /* center horizontally */
+    margin: 16px auto 0; /* center horizontally */
     position: relative;
     white-space: nowrap;
 }
@@ -84,9 +84,9 @@ li:hover:active {
 }
 
 .material-icons {
-    color: rgba(0, 0, 0, .54); /* md-dark */
+    color: rgba(0, 0, 0, 0.54); /* md-dark */
     cursor: pointer;
-    font-size: 36px; /* md-36 */
+    font-size: 48px; /* md-48 */
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -98,6 +98,10 @@ li:hover:active {
 
 .material-icons.hidden {
     display: none;
+}
+
+#add {
+    margin-top: 16px;
 }
 
 div > .close {
@@ -113,10 +117,4 @@ div > .close {
     display: inline-block;
     height: 1px;
     width: 24px;
-}
-
-.vspace24 {
-    display: block;
-    height: 24px;
-    width: 1px;
 }

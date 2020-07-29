@@ -31,7 +31,7 @@ function* bubble(a) {
         let m = 0;
         for (let i = 1; i < n; i++) {
             accesses++, comparisons++;
-            yield [accesses, comparisons, [i - 1, i], [n], undefined];
+            yield [accesses, comparisons, [i - 1, i], [], undefined];
             accesses++;
             if (a[i - 1] > a[i]) {
                 a.swap(i - 1, i);
@@ -43,27 +43,98 @@ function* bubble(a) {
     }
     return [accesses, comparisons];
 }
+function* bubbleBi(a) {
+    let accesses = 0;
+    let comparisons = 0;
+    let iStart = 0;
+    let iEnd = a.length - 1;
+    while (iStart < iEnd) {
+        let iNew = iStart;
+        accesses++;
+        for (let i = iStart + 1; i <= iEnd; i++) {
+            accesses++, comparisons++;
+            yield [accesses, comparisons, [i - 1, i], [], undefined];
+            accesses++;
+            if (a[i - 1] > a[i]) {
+                a.swap(i - 1, i);
+                iNew = i;
+            }
+        }
+        accesses++;
+        iEnd = --iNew;
+        accesses++;
+        for (let i = iEnd; i > iStart; i--) {
+            accesses++, comparisons++;
+            yield [accesses, comparisons, [i - 1, i], [], undefined];
+            accesses++;
+            if (a[i - 1] > a[i]) {
+                a.swap(i - 1, i);
+                iNew = i;
+            }
+        }
+        accesses++;
+        iStart = iNew;
+    }
+    return [accesses, comparisons];
+}
+function* comb(a) {
+    let accesses = 0;
+    let comparisons = 0;
+    let gap = a.length;
+    const shrink = 1.3;
+    for (let done = true; gap > 1 || !done;) {
+        done = true;
+        gap = Math.max(Math.floor(gap / shrink), 1);
+        if (gap === 9 || gap === 10)
+            gap = 11;
+        for (let i = gap; i < a.length; i++) {
+            accesses += 2, comparisons++;
+            yield [accesses, comparisons, [i - gap, i], [], undefined];
+            if (a[i - gap] > a[i]) {
+                accesses += 2;
+                a.swap(i - gap, i);
+                done = false;
+            }
+        }
+    }
+    return [accesses, comparisons];
+}
 function* insertion(a) {
     let accesses = 0;
     let comparisons = 0;
-    for (let i = 1; i < a.length; i++) {
+    for (let i = a.length - 2; i >= 0; i--) {
         accesses++;
-        let l = 0;
-        let r = i;
-        while (l < r) {
+        for (let j = i + 1; j < a.length; j++) {
             accesses++, comparisons++;
-            yield [accesses, comparisons, [l, r], [i], 'searching'];
-            const m = Math.floor((l + r) / 2);
-            if (a[m] > a[i])
-                r = m;
-            else
-                l = m + 1;
-        }
-        for (let j = i; j > r; j--) {
-            accesses += 2;
+            yield [accesses, comparisons, [j - 1, j], [], undefined];
+            if (a[j - 1] <= a[j])
+                break;
+            accesses++;
             a.swap(j - 1, j);
-            yield [accesses, comparisons, [], [j - 1], 'ordering'];
         }
+        accesses++;
+    }
+    return [accesses, comparisons];
+}
+function* insertionBS(a) {
+    let accesses = 0;
+    let comparisons = 0;
+    for (let i = a.length - 2; i >= 0; i--) {
+        accesses++;
+        let l = i + 1;
+        let r = a.length - 1;
+        while (l <= r) {
+            const m = Math.ceil((l + r) / 2);
+            accesses++, comparisons++;
+            yield [accesses, comparisons, [i, m], [l, r], undefined];
+            if (a[m] < a[i])
+                l = m + 1;
+            else
+                r = m - 1;
+        }
+        accesses += 2 * (l - (i + 1));
+        for (let j = i + 1; j < l; j++)
+            a.swap(j - 1, j);
         accesses++;
     }
     return [accesses, comparisons];
@@ -174,55 +245,89 @@ function* quickHoare(a) {
 function* selection(a) {
     let accesses = 0;
     let comparisons = 0;
-    for (let i = 0; i < a.length - 1; i++) {
+    for (let i = a.length - 1; i >= 1; i--) {
         accesses++;
-        let jMin = i;
-        for (let j = i + 1; j < a.length; j++) {
+        let jMax = 0;
+        for (let j = 1; j <= i; j++) {
             accesses++, comparisons++;
-            yield [accesses, comparisons, [jMin, j], [i - 1], undefined];
-            if (a[j] < a[jMin]) {
-                accesses++;
-                jMin = j;
-            }
+            yield [accesses, comparisons, [jMax, j], [], undefined];
+            if (a[j] >= a[jMax])
+                jMax = j;
         }
-        if (i !== jMin) {
-            accesses++;
-            a.swap(i, jMin);
+        if (i !== jMax) {
+            accesses += 3;
+            a.swap(i, jMax);
         }
     }
     return [accesses, comparisons];
 }
-function* shaker(a) {
+function* selectionDbl(a) {
     let accesses = 0;
     let comparisons = 0;
-    let iStart = 0;
-    let iEnd = a.length - 1;
-    while (iStart < iEnd) {
-        let iNew = iStart;
-        accesses++;
-        for (let i = iStart + 1; i <= iEnd; i++) {
-            accesses++, comparisons++;
-            yield [accesses, comparisons, [i - 1, i], [iStart - 1, iEnd + 1], undefined];
-            accesses++;
-            if (a[i - 1] > a[i]) {
-                a.swap(i - 1, i);
-                iNew = i;
+    for (let i = 0; i < Math.floor(a.length / 2); i++) {
+        accesses += 2, comparisons++;
+        yield [accesses, comparisons, [i, i + 1], [], undefined];
+        let jMax = a[i] > a[i + 1] ? i : i + 1;
+        let jMin = a[i] <= a[i + 1] ? i : i + 1;
+        const jLast = a.length - i - 1;
+        for (let j = i + 2; j < jLast; j += 2) {
+            accesses += 2, comparisons++;
+            yield [accesses, comparisons, [j, j + 1], [], undefined];
+            if (a[j] > a[j + 1]) {
+                comparisons++;
+                yield [accesses, comparisons, [jMax, j], [], undefined];
+                jMax = a[j] >= a[jMax] ? j : jMax;
+                comparisons++;
+                yield [accesses, comparisons, [jMin, j + 1], [], undefined];
+                jMin = a[j + 1] < a[jMin] ? j + 1 : jMin;
+            }
+            else {
+                comparisons++;
+                yield [accesses, comparisons, [jMax, j + 1], [], undefined];
+                jMax = a[j + 1] >= a[jMax] ? j + 1 : jMax;
+                comparisons++;
+                yield [accesses, comparisons, [jMin, j], [], undefined];
+                jMin = a[j] < a[jMin] ? j : jMin;
             }
         }
-        accesses++;
-        iEnd = --iNew;
-        accesses++;
-        for (let i = iEnd; i > iStart; i--) {
+        if (a.length % 2 === 1) {
             accesses++, comparisons++;
-            yield [accesses, comparisons, [i - 1, i], [iStart - 1, iEnd + 1], undefined];
-            accesses++;
-            if (a[i - 1] > a[i]) {
-                a.swap(i - 1, i);
-                iNew = i;
+            yield [accesses, comparisons, [jMax, jLast], [], undefined];
+            if (a[jLast] >= a[jMax]) {
+                jMax = jLast;
+            }
+            else {
+                comparisons++;
+                yield [accesses, comparisons, [jMin, jLast], [], undefined];
+                if (a[jLast] < a[jMin])
+                    jMin = jLast;
             }
         }
-        accesses++;
-        iStart = iNew;
+        if (jMax === jLast && jMin === i) {
+        }
+        else if (jMax === jLast || jMin === i) {
+            accesses += 3;
+        }
+        else {
+            if (jMax === i && jMin === jLast) {
+            }
+            else if (jMax === i || jMin === jLast) {
+                accesses += 2;
+            }
+            else {
+                accesses += 4;
+            }
+            accesses += 2;
+        }
+        if (jMax === i) {
+            a.swap(jMax, jLast);
+            if (jMin !== jLast)
+                a.swap(jMin, i);
+        }
+        else {
+            a.swap(jMin, i);
+            a.swap(jMax, jLast);
+        }
     }
     return [accesses, comparisons];
 }
@@ -258,7 +363,6 @@ function addAlgorithm(algName, funName) {
     };
     const header = newElt('div', { class: 'header' });
     const canvas = newElt('canvas');
-    const vspace = newElt('span', { class: 'vspace24' });
     header.appendChild(document.createTextNode(algName + ' ('));
     header.appendChild(newElt('span', { id: 'accesses', text: '0' }));
     header.appendChild(newElt('span', { class: 'hide-on-overflow', text: ' accesses' }));
@@ -271,12 +375,10 @@ function addAlgorithm(algName, funName) {
             algs.splice(algs.indexOf(tuple), 1);
             header.remove();
             canvas.remove();
-            vspace.remove();
         }, text: 'close' }));
     const divider = document.querySelector('#add');
     divider.parentNode.insertBefore(header, divider);
     divider.parentNode.insertBefore(canvas, divider);
-    divider.parentNode.insertBefore(vspace, divider);
     setDimensions();
     toggleDialog();
     algs.push(tuple);
