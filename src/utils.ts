@@ -1,6 +1,7 @@
 interface Array<T> {
     shuffle(): void
     swap(i: number, j: number): void
+    swapValue(i: number, v: T): T
 }
 
 // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm
@@ -14,6 +15,11 @@ Array.prototype.swap = function(i, j) {
     const t = this[i]
     this[i] = this[j]
     this[j] = t
+}
+Array.prototype.swapValue = function(i, v) {
+    const t = this[i]
+    this[i] = v
+    return t
 }
 
 // I was tired of all the lines of code it took for such a simple task...
