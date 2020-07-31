@@ -15,7 +15,6 @@ function addAlgorithm(algName: string, funName: string) {
     const header = newElt('div', { class: 'header' })
     const canvas = newElt('canvas')
 
-    // TODO: add field for state? 'merging', 'searching', etc.
     header.appendChild(document.createTextNode(algName + ' ('))
     header.appendChild(newElt('span', { id: 'accesses', text: '0' }))
     header.appendChild(newElt('span', { class: 'hide-on-overflow', text: ' accesses' }))
@@ -57,9 +56,14 @@ function calculateDimensions() {
 
     setDimensions()
 }
+function checkOverflow(header: HTMLElement) {
+    const hide: NodeListOf<HTMLElement> = header.querySelectorAll('.hide-on-overflow')
+    hide.forEach(e => e.style.removeProperty('display')) // reset so scrollWidth can be calculated
+    if (header.scrollWidth > header.clientWidth) hide.forEach(e => e.style.display = 'none')
+}
 function drawAll() {
     for (let i = 0; i < algs.length; i++) {
-        const hdr = document.querySelectorAll('.header')[i]
+        const hdr = document.querySelectorAll('.header')[i] as HTMLElement
         const can = document.querySelectorAll('canvas')[i].getContext('2d')!
 
         const arr = algs[i].array
@@ -68,8 +72,9 @@ function drawAll() {
 
         hdr.querySelector('#accesses')!.textContent = stp?.[0].toString() ?? '0'
         hdr.querySelector('#comparisons')!.textContent = stp?.[1].toString() ?? '0'
-        can.clearRect(0, 0, dims.canWidth, dims.canHeight)
+        checkOverflow(hdr)
 
+        can.clearRect(0, 0, dims.canWidth, dims.canHeight)
         for (let j = 0; j < arr.length; j++) {
             can.fillStyle = '#111'
 
@@ -117,9 +122,7 @@ function setDimensions() {
         // into the padding, messing up the overflow calculation below.
         h.style.width = dims.canWidthInner + 'px'
 
-        const hide: NodeListOf<HTMLElement> = h.querySelectorAll('.hide-on-overflow')
-        hide.forEach(e => e.style.removeProperty('display')) // reset so scrollWidth can be calculated
-        if (h.scrollWidth > h.clientWidth) hide.forEach(e => e.style.display = 'none')
+        checkOverflow(h)
     })
 
     document.querySelectorAll('canvas').forEach(c => {
