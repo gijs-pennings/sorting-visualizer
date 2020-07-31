@@ -11,7 +11,7 @@ function* shell(a: number[]): StepGenerator {
             let j = i
             for (/* empty */; j >= g; j -= g) {
                 accesses++, comparisons++
-                yield [accesses, comparisons, [j-g, j], [], undefined]
+                yield [accesses, comparisons, [j-g, j]]
                 if (a[j-g] <= a[j]) break
                 accesses++
                 a.swap(j-g, j)

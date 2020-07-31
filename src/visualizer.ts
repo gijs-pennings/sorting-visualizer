@@ -59,27 +59,37 @@ function calculateDimensions() {
 }
 function drawAll() {
     for (let i = 0; i < algs.length; i++) {
-        const h = document.querySelectorAll('.header')[i]
-        const c = document.querySelectorAll('canvas')[i].getContext('2d')!
+        const hdr = document.querySelectorAll('.header')[i]
+        const can = document.querySelectorAll('canvas')[i].getContext('2d')!
 
-        const a = algs[i].array
-        const s = algs[i].lastStep?.value // value itself is never undefined, but lastStep may be
+        const arr = algs[i].array
+        const stp = algs[i].lastStep?.value // value itself is never undefined, but lastStep may be
+        const col = stp?.[2]
 
-        h.querySelector('#accesses')!.textContent = s?.[0].toString() ?? '0'
-        h.querySelector('#comparisons')!.textContent = s?.[1].toString() ?? '0'
+        hdr.querySelector('#accesses')!.textContent = stp?.[0].toString() ?? '0'
+        hdr.querySelector('#comparisons')!.textContent = stp?.[1].toString() ?? '0'
+        can.clearRect(0, 0, dims.canWidth, dims.canHeight)
 
-        c.clearRect(0, 0, dims.canWidth, dims.canHeight)
+        for (let j = 0; j < arr.length; j++) {
+            can.fillStyle = '#111'
 
-        for (let j = 0; j < a.length; j++) {
-            c.fillStyle = '#111'
-            if (s?.[3]?.includes(j)) c.fillStyle = 'limegreen'
-            if (s?.[2]?.includes(j)) c.fillStyle = 'red'
+            if (col)
+                if (col instanceof Array) {
+                    if (col.includes(j))
+                        can.fillStyle = 'red'
+                } else {
+                    for (const c in col)
+                        if (col[c].includes(j)) {
+                            can.fillStyle = c === '>' ? 'red' : (c === '!' ? 'limegreen' : c)
+                            if (c === '>' || c === '!') break
+                        }
+                }
 
-            c.fillRect(
+            can.fillRect(
                 dims.canPadding + j * dims.barWidth,
                 dims.canHeight,
                 dims.barWidthInner,
-                -dims.canHeight * (0.1 + 0.9 * a[j] / (a.length - 1))
+                -dims.canHeight * (0.1 + 0.9 * arr[j] / (arr.length - 1))
             )
         }
     }

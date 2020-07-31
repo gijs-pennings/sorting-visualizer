@@ -26,15 +26,15 @@ function* quickHoare(a: number[]): StepGenerator {
             const indices = [randomInt(lo, hi), randomInt(lo, hi), randomInt(lo, hi)]
 
             accesses += 2, comparisons++
-            yield [accesses, comparisons, [indices[0], indices[1]], [], 'picking pivot']
+            yield [accesses, comparisons, [indices[0], indices[1]]]
             if (a[indices[0]] > a[indices[1]]) indices.swap(0, 1)
 
             accesses++, comparisons++
-            yield [accesses, comparisons, [indices[0], indices[2]], [], 'picking pivot']
+            yield [accesses, comparisons, [indices[0], indices[2]]]
             if (a[indices[0]] > a[indices[2]]) indices.swap(0, 2)
 
             comparisons++
-            yield [accesses, comparisons, [indices[1], indices[2]], [], 'picking pivot']
+            yield [accesses, comparisons, [indices[1], indices[2]]]
             if (a[indices[1]] > a[indices[2]]) indices.swap(1, 2)
 
             iPivot = indices[1]
@@ -49,13 +49,13 @@ function* quickHoare(a: number[]): StepGenerator {
             do {
                 i++
                 accesses++, comparisons++
-                if (i < j) yield [accesses, comparisons, j <= hi ? [i, j] : [i], [iPivot], 'partitioning']
+                if (i < j) yield [accesses, comparisons, { '>': j <= hi ? [i, j] : [i], '!': [iPivot] }]
             } while (a[i] < pivot)
 
             do {
                 j--
                 accesses++, comparisons++
-                if (i < j) yield [accesses, comparisons, [i, j], [iPivot], 'partitioning']
+                if (i < j) yield [accesses, comparisons, { '>': [i, j], '!': [iPivot] }]
             } while (a[j] > pivot)
 
             if (i >= j) break

@@ -45,18 +45,29 @@ function randomInt(min: number, max: number) {
     return min + Math.floor(Math.random() * (max - min + 1))
 }
 
-type Step = IteratorResult<
-    [number, number, number[], number[], string | undefined],
-    [number, number]
->
-type StepGenerator = Generator<
-    [number, number, number[], number[], string | undefined],
-    [number, number],
-    void // TODO: used correctly?
->
+class NumberRange {
+    constructor(
+        readonly start: number, // inclusive
+        readonly end: number // exclusive
+    ) {}
+    empty() {
+        return this.start >= this.end
+    }
+    includes(i: number) {
+        return this.start <= i && i < this.end
+    }
+    intersection(start: number, end: number) {
+        return new NumberRange(Math.max(this.start, start), Math.min(this.end, end))
+    }
+}
+type Pair<T> = [T, T]
+
+type ColorInfo = { [color: string]: number[] | NumberRange }
+type StepInfo = [number, number, number[] | ColorInfo]
+type StepGenerator = Generator<StepInfo, Pair<number>, void> // TODO: 'void' used correctly?
 type RunningAlgorithm = {
     array: number[]
     function: (a: number[]) => StepGenerator
     generator: StepGenerator
-    lastStep?: Step
+    lastStep?: IteratorResult<StepInfo, Pair<number>>
 }

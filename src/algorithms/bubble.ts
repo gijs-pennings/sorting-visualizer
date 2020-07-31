@@ -7,7 +7,7 @@ function* bubble(a: number[]): StepGenerator {
         let m = 0
         for (let i = 1; i < n; i++) {
             accesses++, comparisons++
-            yield [accesses, comparisons, [i-1, i], [], undefined]
+            yield [accesses, comparisons, [i-1, i]]
             accesses++
             if (a[i-1] > a[i]) {
                 a.swap(i-1, i)
@@ -53,7 +53,7 @@ function* bubbleBi(a: number[]): StepGenerator {
         accesses++
         for (let i = iStart+1; i <= iEnd; i++) {
             accesses++, comparisons++
-            yield [accesses, comparisons, [i-1, i], [], undefined]
+            yield [accesses, comparisons, [i-1, i]]
             accesses++
             if (a[i-1] > a[i]) {
                 a.swap(i-1, i)
@@ -67,7 +67,7 @@ function* bubbleBi(a: number[]): StepGenerator {
         accesses++
         for (let i = iEnd; i > iStart; i--) {
             accesses++, comparisons++
-            yield [accesses, comparisons, [i-1, i], [], undefined]
+            yield [accesses, comparisons, [i-1, i]]
             accesses++
             if (a[i-1] > a[i]) {
                 a.swap(i-1, i)

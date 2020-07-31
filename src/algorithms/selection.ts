@@ -7,7 +7,7 @@ function* selection(a: number[]): StepGenerator {
         let jMax = 0
         for (let j = 1; j <= i; j++) {
             accesses++, comparisons++
-            yield [accesses, comparisons, [jMax, j], [], undefined]
+            yield [accesses, comparisons, [jMax, j]]
             if (a[j] >= a[jMax]) jMax = j
         }
         if (i !== jMax) {
@@ -43,7 +43,7 @@ function* selectionDbl(a: number[]): StepGenerator {
         // are at least two unsorted elements in the array. Note that a single
         // element is trivially sorted.
         accesses += 2, comparisons++
-        yield [accesses, comparisons, [i, i+1], [], undefined]
+        yield [accesses, comparisons, [i, i+1]]
         let jMax = a[i] >  a[i+1] ? i : i+1
         let jMin = a[i] <= a[i+1] ? i : i+1
 
@@ -53,22 +53,22 @@ function* selectionDbl(a: number[]): StepGenerator {
         const jLast = a.length-i-1
         for (let j = i+2; j < jLast; j += 2) {
             accesses += 2, comparisons++
-            yield [accesses, comparisons, [j, j+1], [], undefined]
+            yield [accesses, comparisons, [j, j+1]]
             if (a[j] > a[j+1]) {
                 comparisons++
-                yield [accesses, comparisons, [jMax, j], [], undefined]
+                yield [accesses, comparisons, [jMax, j]]
                 jMax = a[j] >= a[jMax] ? j : jMax
 
                 comparisons++
-                yield [accesses, comparisons, [jMin, j+1], [], undefined]
+                yield [accesses, comparisons, [jMin, j+1]]
                 jMin = a[j+1] < a[jMin] ? j+1 : jMin
             } else {
                 comparisons++
-                yield [accesses, comparisons, [jMax, j+1], [], undefined]
+                yield [accesses, comparisons, [jMax, j+1]]
                 jMax = a[j+1] >= a[jMax] ? j+1 : jMax
 
                 comparisons++
-                yield [accesses, comparisons, [jMin, j], [], undefined]
+                yield [accesses, comparisons, [jMin, j]]
                 jMin = a[j] < a[jMin] ? j : jMin
             }
         }
@@ -77,12 +77,12 @@ function* selectionDbl(a: number[]): StepGenerator {
         // and must be compared separately.
         if (a.length % 2 === 1) {
             accesses++, comparisons++
-            yield [accesses, comparisons, [jMax, jLast], [], undefined]
+            yield [accesses, comparisons, [jMax, jLast]]
             if (a[jLast] >= a[jMax]) {
                 jMax = jLast
             } else {
                 comparisons++
-                yield [accesses, comparisons, [jMin, jLast], [], undefined]
+                yield [accesses, comparisons, [jMin, jLast]]
                 if (a[jLast] < a[jMin]) jMin = jLast
             }
         }

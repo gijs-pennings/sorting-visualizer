@@ -14,7 +14,7 @@ function* comb(a: number[]): StepGenerator {
         if (gap === 9 || gap === 10) gap = 11 // Lacey & Box, 1991
         for (let i = gap; i < a.length; i++) {
             accesses += 2, comparisons++
-            yield [accesses, comparisons, [i-gap, i], [], undefined]
+            yield [accesses, comparisons, [i-gap, i]]
             if (a[i-gap] > a[i]) {
                 accesses += 2
                 a.swap(i-gap, i)

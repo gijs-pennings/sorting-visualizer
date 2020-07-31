@@ -28,13 +28,13 @@ function* mergeUp(a: number[]): StepGenerator {
             for (let j = i; j < qMax; j++)
                 if (p < pMax) {
                     if (q >= qMax) {
-                        yield [accesses, comparisons, [p], [], 'merging']
+                        yield [accesses, comparisons, [p]]
                         accesses += 2
                         b[j] = a[p]
                         p++
                     } else {
                         accesses += 2, comparisons++
-                        yield [accesses, comparisons, [p, q], [], 'merging']
+                        yield [accesses, comparisons, [p, q]]
                         accesses++
                         if (a[p] <= a[q])
                             b[j] = a[p], p++
@@ -42,7 +42,7 @@ function* mergeUp(a: number[]): StepGenerator {
                             b[j] = a[q], q++
                     }
                 } else {
-                    yield [accesses, comparisons, [q], [], 'merging']
+                    yield [accesses, comparisons, [q]]
                     accesses += 2
                     b[j] = a[q]
                     q++
@@ -52,7 +52,7 @@ function* mergeUp(a: number[]): StepGenerator {
             for (let j = i; j < qMax; j++) {
                 accesses += 2
                 a[j] = b[j]
-                yield [accesses, comparisons, [], [j], 'copying']
+             // yield [accesses, comparisons, [], [j], 'copying']
             }
 
         }

@@ -7,7 +7,7 @@ function* insertion(a: number[]): StepGenerator {
 
         for (let j = i+1; j < a.length; j++) {
             accesses++, comparisons++
-            yield [accesses, comparisons, [j-1, j], [], undefined]
+            yield [accesses, comparisons, [j-1, j]]
             if (a[j-1] <= a[j]) break
             accesses++
             a.swap(j-1, j)
@@ -48,7 +48,7 @@ function* insertionBS(a: number[]): StepGenerator {
         while (l <= r) {
             const m = Math.ceil((l + r) / 2)
             accesses++, comparisons++
-            yield [accesses, comparisons, [i, m], [l, r], undefined]
+            yield [accesses, comparisons, { '>': [i, m], '!': [l, r] }]
             if (a[m] < a[i])
                 l = m+1
             else
