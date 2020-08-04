@@ -1,5 +1,4 @@
 function* shell(a: number[]): StepGenerator {
-
     let accesses = 0
     let comparisons = 0
 
@@ -16,13 +15,11 @@ function* shell(a: number[]): StepGenerator {
                 accesses++
                 a.swap(j-g, j)
             }
-            accesses++
+            if (i !== j) accesses++
         }
 
     return [accesses, comparisons] as [number, number]
-
 }
-
 /*
 
 for g in gaps
@@ -34,6 +31,7 @@ for g in gaps
             if tj ≤ ti: break
             a[j] ← tj
             j ← j - g
-        a[j] ← ti
+        if i ≠ j
+            a[j] ← ti
 
 */
