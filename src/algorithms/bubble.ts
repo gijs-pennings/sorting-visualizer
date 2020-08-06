@@ -18,7 +18,7 @@ function* bubble(a: number[]): StepGenerator {
         n = m
     }
 
-    return [accesses, comparisons] as [number, number]
+    return [accesses, comparisons] as Pair<number>
 }
 /*
 
@@ -79,5 +79,5 @@ function* bubbleBi(a: number[]): StepGenerator {
         iStart = iNew
     }
 
-    return [accesses, comparisons] as [number, number]
+    return [accesses, comparisons] as Pair<number>
 }

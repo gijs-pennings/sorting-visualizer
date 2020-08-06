@@ -16,7 +16,7 @@ function* insertion(a: number[]): StepGenerator {
         accesses++
     }
 
-    return [accesses, comparisons] as [number, number]
+    return [accesses, comparisons] as Pair<number>
 }
 /*
 
@@ -62,5 +62,5 @@ function* insertionBS(a: number[]): StepGenerator {
         accesses++
     }
 
-    return [accesses, comparisons] as [number, number]
+    return [accesses, comparisons] as Pair<number>
 }

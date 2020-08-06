@@ -16,7 +16,7 @@ function* selection(a: number[]): StepGenerator {
         }
     }
 
-    return [accesses, comparisons] as [number, number]
+    return [accesses, comparisons] as Pair<number>
 }
 /*
 
@@ -115,7 +115,7 @@ function* selectionDbl(a: number[]): StepGenerator {
         }
     }
 
-    return [accesses, comparisons] as [number, number]
+    return [accesses, comparisons] as Pair<number>
 }
 /*
 

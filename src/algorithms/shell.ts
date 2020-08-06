@@ -18,20 +18,20 @@ function* shell(a: number[]): StepGenerator {
             if (i !== j) accesses++
         }
 
-    return [accesses, comparisons] as [number, number]
+    return [accesses, comparisons] as Pair<number>
 }
 /*
 
 for g in gaps
     for i in g until a.length
-        ti ← a[i]
+        x ← a[i]
         j ← i
         while j ≥ g
-            tj ← a[j-g]
-            if tj ≤ ti: break
-            a[j] ← tj
+            y ← a[j-g]
+            if y ≤ x: break
+            a[j] ← y
             j ← j - g
         if i ≠ j
-            a[j] ← ti
+            a[j] ← x
 
 */

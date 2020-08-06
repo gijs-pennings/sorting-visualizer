@@ -83,5 +83,5 @@ function* heap(a: number[]): StepGenerator {
         yield* heapify(0)
     }
 
-    return [accesses, comparisons] as [number, number]
+    return [accesses, comparisons] as Pair<number>
 }

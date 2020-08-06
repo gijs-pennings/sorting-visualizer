@@ -57,6 +57,6 @@ function* mergeUp(a: number[]): StepGenerator {
 
         }
 
-    return [accesses, comparisons] as [number, number]
+    return [accesses, comparisons] as Pair<number>
 
 }
