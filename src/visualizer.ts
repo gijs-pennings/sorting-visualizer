@@ -2,9 +2,14 @@
 const barCount = 2**7
 const msPerStep = 20 // => 50 steps per second
 
-function addAlgorithm(algName: string, funName: string) {
+function addAlgorithm(algName: string, funName: string, funArg: any = null) {
     const a = array.slice() // shallow copy
-    const f = (window as { [key: string]: any })[funName]
+
+    // The specified function is either an AlgorithmFunction, or a function that
+    // returns an AlgorithmFunction using funArg as its one and only parameter.
+    // TODO: this is quite complex, and only used for quick sort
+    let f = (window as { [key: string]: any })[funName]
+    if (funArg !== null) f = f(funArg)
 
     const tuple: RunningAlgorithm = {
         array: a,

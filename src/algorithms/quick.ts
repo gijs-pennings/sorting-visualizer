@@ -1,75 +1,101 @@
-function* quickHoare(a: number[]): StepGenerator {
-
-    let accesses = 0
-    let comparisons = 0
-
-    const stack: number[] = [] // all ranges are inclusive
-    if (a.length > 1) stack.push(0, a.length-1)
-
-    while (stack.length > 0) {
-        // reverse order!
-        const hi = stack.pop()!
-        const lo = stack.pop()!
-
-        // picking pivot (the threshold is an educated guess based on tests on
-        // distinct, shuffled data where the number of accesses and comparisons
-        // were minimized)
-        let iPivot: number
-        if (hi-lo < 25) {
-            // pivot: middle element
-            accesses++
-            iPivot = Math.floor((lo+hi) / 2)
-        } else {
-            // pivot: median of three random elements
-            // TODO: is it a problem that a[hi] can be chosen as the pivot?
-            // TODO: should the indices be chosen at random or as [lo, mid, hi]?
-            const indices = [randomInt(lo, hi), randomInt(lo, hi), randomInt(lo, hi)]
-
-            accesses += 2, comparisons++
-            yield [accesses, comparisons, [indices[0], indices[1]]]
-            if (a[indices[0]] > a[indices[1]]) indices.swap(0, 1)
-
+function* partitionHoare(
+    a: number[], lo: number, hi: number,
+    accesses: number, comparisons: number
+): Generator<StepInfo, Tuple<number>, void> {
+    let i = lo-1
+    let j = hi
+outer:
+    while (true) {
+        do {
+            j--
+            if (i >= j) break outer // yes, I know some people won't like this
             accesses++, comparisons++
-            yield [accesses, comparisons, [indices[0], indices[2]]]
-            if (a[indices[0]] > a[indices[2]]) indices.swap(0, 2)
+            yield [accesses, comparisons, { '>': [j, hi], '#ff8c00': i >= lo ? [i] : [] }]
+        } while (a[j] > a[hi])
 
-            comparisons++
-            yield [accesses, comparisons, [indices[1], indices[2]]]
-            if (a[indices[1]] > a[indices[2]]) indices.swap(1, 2)
+        do {
+            i++
+            if (i >= j) break outer
+            accesses++, comparisons++
+            yield [accesses, comparisons, { '>': [i, hi], '#ff8c00': [j] }]
+        } while (a[i] < a[hi])
 
-            iPivot = indices[1]
-        }
-        const pivot = a[iPivot]
-
-        // partitioning
-        let i = lo-1
-        let j = hi+1
-
-        while (true) {
-            do {
-                i++
-                accesses++, comparisons++
-                if (i < j) yield [accesses, comparisons, { '>': j <= hi ? [i, j] : [i], '!': [iPivot] }]
-            } while (a[i] < pivot)
-
-            do {
-                j--
-                accesses++, comparisons++
-                if (i < j) yield [accesses, comparisons, { '>': [i, j], '!': [iPivot] }]
-            } while (a[j] > pivot)
-
-            if (i >= j) break
-
-            accesses += 2
-            a.swap(i, j)
-            iPivot = iPivot === i ? j : (iPivot === j ? i : iPivot)
-        }
-
-        // recursion (reverse order)
-        if (j+1 < hi) stack.push(j+1, hi)
-        if ( lo <  j) stack.push( lo,  j)
+        accesses += 2
+        a.swap(i, j)
     }
+    return [j+1, accesses, comparisons] as Tuple<number>
+}
 
-    return [accesses, comparisons] as [number, number]
+function* partitionLomuto(
+    a: number[], lo: number, hi: number,
+    accesses: number, comparisons: number
+): Generator<StepInfo, Tuple<number>, void> {
+    let i = lo
+    for (let j = lo; j < hi; j++) {
+        accesses++, comparisons++
+        yield [accesses, comparisons, [j, hi]]
+        if (a[j] < a[hi]) {
+            if (i !== j) {
+                accesses += 3
+                a.swap(i, j)
+            }
+            i++
+        }
+    }
+    return [i, accesses, comparisons] as Tuple<number>
+}
+
+function quick(type: string): AlgorithmFunction {
+
+    const partition = type === 'h' ? partitionHoare : partitionLomuto
+
+    return function*(a: number[]): StepGenerator {
+        let accesses = 0
+        let comparisons = 0
+
+        const stack: Pair<number>[] = [] // inclusive
+        if (a.length > 1) stack.push([0, a.length-1])
+
+        while (stack.length) {
+            const [lo, hi] = stack.pop()!
+
+            // i - choosing pivot
+            const mi = Math.floor((lo+hi) / 2)
+            if (hi - lo + 1 >= 9) {
+                // >= 9 elements: median of three (TODO: I guessed this threshold)
+                accesses += 2, comparisons++
+                yield [accesses, comparisons, [lo, mi]]
+                accesses++, comparisons++
+                yield [accesses, comparisons, [lo, hi]]
+                comparisons++
+                yield [accesses, comparisons, [mi, hi]]
+
+                const index = [lo, mi, hi].sort((i, j) => a[i] - a[j])[1]
+                if (index !== hi && a[index] !== a[hi]) {
+                    accesses++
+                    a.swap(index, hi)
+                }
+            } else {
+                // < 9 elements: use a[mi]
+                accesses += 3
+                a.swap(mi, hi)
+            }
+
+            // ii - partitioning
+            let p: number
+            [p, accesses, comparisons] = yield* partition(a, lo, hi, accesses, comparisons)
+
+            if (p !== hi) {
+                accesses += 3
+                a.swap(p, hi)
+            }
+
+            // iii - recurring (push in reverse order!)
+            if (p+1 <  hi) stack.push([p+1,  hi])
+            if ( lo < p-1) stack.push([ lo, p-1])
+        }
+
+        return [accesses, comparisons] as Pair<number>
+    }
 
 }

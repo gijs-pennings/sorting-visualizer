@@ -61,13 +61,15 @@ class NumberRange {
     }
 }
 type Pair<T> = [T, T]
+type Tuple<T> = [T, T, T]
 
 type ColorInfo = { [color: string]: number[] | NumberRange }
 type StepInfo = [number, number, number[] | ColorInfo]
 type StepGenerator = Generator<StepInfo, Pair<number>, void> // TODO: 'void' used correctly?
+type AlgorithmFunction = (a: number[]) => StepGenerator
 type RunningAlgorithm = {
     array: number[]
-    function: (a: number[]) => StepGenerator
+    function: AlgorithmFunction
     generator: StepGenerator
     lastStep?: IteratorResult<StepInfo, Pair<number>>
 }
