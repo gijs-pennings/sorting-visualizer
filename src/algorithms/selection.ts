@@ -53,22 +53,22 @@ function* selectionDbl(a: number[]): StepGenerator {
         const jLast = a.length-i-1
         for (let j = i+2; j < jLast; j += 2) {
             accesses += 2, comparisons++
-            yield [accesses, comparisons, [j, j+1]]
+            yield [accesses, comparisons, { '>': [j, j+1], '#ff8c00': [jMax, jMin] }]
             if (a[j] > a[j+1]) {
                 comparisons++
-                yield [accesses, comparisons, [jMax, j]]
+                yield [accesses, comparisons, { '>': [jMax, j], '#ff8c00': [jMin] }]
                 jMax = a[j] >= a[jMax] ? j : jMax
 
                 comparisons++
-                yield [accesses, comparisons, [jMin, j+1]]
+                yield [accesses, comparisons, { '>': [jMin, j+1], '#ff8c00': [jMax] }]
                 jMin = a[j+1] < a[jMin] ? j+1 : jMin
             } else {
                 comparisons++
-                yield [accesses, comparisons, [jMax, j+1]]
+                yield [accesses, comparisons, { '>': [jMax, j+1], '#ff8c00': [jMin] }]
                 jMax = a[j+1] >= a[jMax] ? j+1 : jMax
 
                 comparisons++
-                yield [accesses, comparisons, [jMin, j]]
+                yield [accesses, comparisons, { '>': [jMin, j], '#ff8c00': [jMax] }]
                 jMin = a[j] < a[jMin] ? j : jMin
             }
         }
@@ -77,12 +77,12 @@ function* selectionDbl(a: number[]): StepGenerator {
         // and must be compared separately.
         if (a.length % 2 === 1) {
             accesses++, comparisons++
-            yield [accesses, comparisons, [jMax, jLast]]
+            yield [accesses, comparisons, { '>': [jMax, jLast], '#ff8c00': [jMin] }]
             if (a[jLast] >= a[jMax]) {
                 jMax = jLast
             } else {
                 comparisons++
-                yield [accesses, comparisons, [jMin, jLast]]
+                yield [accesses, comparisons, { '>': [jMin, jLast], '#ff8c00': [jMax] }]
                 if (a[jLast] < a[jMin]) jMin = jLast
             }
         }
@@ -105,7 +105,7 @@ function* selectionDbl(a: number[]): StepGenerator {
         }
 
         // Move the maximum and minimum to their final position. Be careful
-        // swapping elements that are in "each other's" final position.
+        // swapping elements that are in each other's final position.
         if (jMax === i) {
             a.swap(jMax, jLast)
             if (jMin !== jLast) a.swap(jMin, i)
