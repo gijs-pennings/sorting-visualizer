@@ -13,8 +13,10 @@ function* merge(a: number[]): StepGenerator {
         }
     }
 
-    // TODO: should allocation count as accesses?
+    // By copying a to b once and alternating their role every 'level', much
+    // less copying (and hence accesses) is necessary.
     const b = new Array<number>(a.length)
+    accesses += 2 * a.length
 
     while (tree.length) {
         const [lo, hi] = tree.pop()!
@@ -39,7 +41,6 @@ function* merge(a: number[]): StepGenerator {
                 b[k] = a[j++]
             }
 
-        accesses += 2 * (hi-lo)
         for (let k = lo; k < hi; k++) a[k] = b[k]
     }
 
