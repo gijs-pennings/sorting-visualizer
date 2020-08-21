@@ -223,107 +223,130 @@ function* insertionBS(a) {
     }
     return [accesses, comparisons];
 }
-function* mergeUp(a) {
+function* merge(a) {
     let accesses = 0;
     let comparisons = 0;
-    let b = new Array(a.length);
-    for (let width = 1; width < a.length; width *= 2)
-        for (let i = 0; i < a.length; i += 2 * width) {
-            const pMax = i + width;
-            if (pMax >= a.length)
-                continue;
-            const qMax = Math.min(a.length, i + width * 2);
-            let p = i;
-            let q = pMax;
-            for (let j = i; j < qMax; j++)
-                if (p < pMax) {
-                    if (q >= qMax) {
-                        yield [accesses, comparisons, [p]];
-                        accesses += 2;
-                        b[j] = a[p];
-                        p++;
-                    }
-                    else {
-                        accesses += 2, comparisons++;
-                        yield [accesses, comparisons, [p, q]];
-                        accesses++;
-                        if (a[p] <= a[q])
-                            b[j] = a[p], p++;
-                        else
-                            b[j] = a[q], q++;
-                    }
+    const tree = [];
+    if (a.length > 1) {
+        tree.push([0, a.length]);
+        for (let i = 0; i < tree.length; i++) {
+            const [lo, hi] = tree[i];
+            const mi = Math.ceil((lo + hi) / 2);
+            if (hi - mi > 1)
+                tree.push([mi, hi]);
+            if (mi - lo > 1)
+                tree.push([lo, mi]);
+        }
+    }
+    const b = new Array(a.length);
+    accesses += 2 * a.length;
+    while (tree.length) {
+        const [lo, hi] = tree.pop();
+        const mi = Math.ceil((lo + hi) / 2);
+        for (let i = lo, j = mi, k = lo; k < hi; k++)
+            if (i < mi) {
+                if (j < hi) {
+                    accesses += 2, comparisons++;
+                    yield [accesses, comparisons, [i, j]];
+                    accesses++;
+                    if (a[i] <= a[j])
+                        b[k] = a[i++];
+                    else
+                        b[k] = a[j++];
                 }
                 else {
-                    yield [accesses, comparisons, [q]];
                     accesses += 2;
-                    b[j] = a[q];
-                    q++;
+                    b[k] = a[i++];
                 }
-            for (let j = i; j < qMax; j++) {
-                accesses += 2;
-                a[j] = b[j];
             }
-        }
-    return [accesses, comparisons];
-}
-function* quickHoare(a) {
-    let accesses = 0;
-    let comparisons = 0;
-    const stack = [];
-    if (a.length > 1)
-        stack.push(0, a.length - 1);
-    while (stack.length > 0) {
-        const hi = stack.pop();
-        const lo = stack.pop();
-        let iPivot;
-        if (hi - lo < 25) {
-            accesses++;
-            iPivot = Math.floor((lo + hi) / 2);
-        }
-        else {
-            const indices = [randomInt(lo, hi), randomInt(lo, hi), randomInt(lo, hi)];
-            accesses += 2, comparisons++;
-            yield [accesses, comparisons, [indices[0], indices[1]]];
-            if (a[indices[0]] > a[indices[1]])
-                indices.swap(0, 1);
-            accesses++, comparisons++;
-            yield [accesses, comparisons, [indices[0], indices[2]]];
-            if (a[indices[0]] > a[indices[2]])
-                indices.swap(0, 2);
-            comparisons++;
-            yield [accesses, comparisons, [indices[1], indices[2]]];
-            if (a[indices[1]] > a[indices[2]])
-                indices.swap(1, 2);
-            iPivot = indices[1];
-        }
-        const pivot = a[iPivot];
-        let i = lo - 1;
-        let j = hi + 1;
-        while (true) {
-            do {
-                i++;
-                accesses++, comparisons++;
-                if (i < j)
-                    yield [accesses, comparisons, { '>': j <= hi ? [i, j] : [i], '!': [iPivot] }];
-            } while (a[i] < pivot);
-            do {
-                j--;
-                accesses++, comparisons++;
-                if (i < j)
-                    yield [accesses, comparisons, { '>': [i, j], '!': [iPivot] }];
-            } while (a[j] > pivot);
-            if (i >= j)
-                break;
-            accesses += 2;
-            a.swap(i, j);
-            iPivot = iPivot === i ? j : (iPivot === j ? i : iPivot);
-        }
-        if (j + 1 < hi)
-            stack.push(j + 1, hi);
-        if (lo < j)
-            stack.push(lo, j);
+            else if (j < hi) {
+                accesses += 2;
+                b[k] = a[j++];
+            }
+        for (let k = lo; k < hi; k++)
+            a[k] = b[k];
     }
     return [accesses, comparisons];
+}
+function* partitionHoare(a, lo, hi, accesses, comparisons) {
+    let i = lo - 1;
+    let j = hi;
+    outer: while (true) {
+        do {
+            j--;
+            if (i >= j)
+                break outer;
+            accesses++, comparisons++;
+            yield [accesses, comparisons, { '>': [j, hi], '#ff8c00': i >= lo ? [i] : [] }];
+        } while (a[j] > a[hi]);
+        do {
+            i++;
+            if (i >= j)
+                break outer;
+            accesses++, comparisons++;
+            yield [accesses, comparisons, { '>': [i, hi], '#ff8c00': [j] }];
+        } while (a[i] < a[hi]);
+        accesses += 2;
+        a.swap(i, j);
+    }
+    return [j + 1, accesses, comparisons];
+}
+function* partitionLomuto(a, lo, hi, accesses, comparisons) {
+    let i = lo;
+    for (let j = lo; j < hi; j++) {
+        accesses++, comparisons++;
+        yield [accesses, comparisons, [j, hi]];
+        if (a[j] < a[hi]) {
+            if (i !== j) {
+                accesses += 3;
+                a.swap(i, j);
+            }
+            i++;
+        }
+    }
+    return [i, accesses, comparisons];
+}
+function quick(type) {
+    const partition = type === 'h' ? partitionHoare : partitionLomuto;
+    return function* (a) {
+        let accesses = 0;
+        let comparisons = 0;
+        const stack = [];
+        if (a.length > 1)
+            stack.push([0, a.length - 1]);
+        while (stack.length) {
+            const [lo, hi] = stack.pop();
+            const mi = Math.floor((lo + hi) / 2);
+            if (hi - lo + 1 >= 16) {
+                accesses += 2, comparisons++;
+                yield [accesses, comparisons, [lo, mi]];
+                accesses++, comparisons++;
+                yield [accesses, comparisons, [lo, hi]];
+                comparisons++;
+                yield [accesses, comparisons, [mi, hi]];
+                const index = [lo, mi, hi].sort((i, j) => a[i] - a[j])[1];
+                if (index !== hi && a[index] !== a[hi]) {
+                    accesses++;
+                    a.swap(index, hi);
+                }
+            }
+            else {
+                accesses += 3;
+                a.swap(mi, hi);
+            }
+            let p;
+            [p, accesses, comparisons] = yield* partition(a, lo, hi, accesses, comparisons);
+            if (p !== hi) {
+                accesses += 3;
+                a.swap(p, hi);
+            }
+            if (p + 1 < hi)
+                stack.push([p + 1, hi]);
+            if (lo < p - 1)
+                stack.push([lo, p - 1]);
+        }
+        return [accesses, comparisons];
+    };
 }
 function* selection(a) {
     let accesses = 0;
@@ -355,33 +378,33 @@ function* selectionDbl(a) {
         const jLast = a.length - i - 1;
         for (let j = i + 2; j < jLast; j += 2) {
             accesses += 2, comparisons++;
-            yield [accesses, comparisons, [j, j + 1]];
+            yield [accesses, comparisons, { '>': [j, j + 1], '#ff8c00': [jMax, jMin] }];
             if (a[j] > a[j + 1]) {
                 comparisons++;
-                yield [accesses, comparisons, [jMax, j]];
+                yield [accesses, comparisons, { '>': [jMax, j], '#ff8c00': [jMin] }];
                 jMax = a[j] >= a[jMax] ? j : jMax;
                 comparisons++;
-                yield [accesses, comparisons, [jMin, j + 1]];
+                yield [accesses, comparisons, { '>': [jMin, j + 1], '#ff8c00': [jMax] }];
                 jMin = a[j + 1] < a[jMin] ? j + 1 : jMin;
             }
             else {
                 comparisons++;
-                yield [accesses, comparisons, [jMax, j + 1]];
+                yield [accesses, comparisons, { '>': [jMax, j + 1], '#ff8c00': [jMin] }];
                 jMax = a[j + 1] >= a[jMax] ? j + 1 : jMax;
                 comparisons++;
-                yield [accesses, comparisons, [jMin, j]];
+                yield [accesses, comparisons, { '>': [jMin, j], '#ff8c00': [jMax] }];
                 jMin = a[j] < a[jMin] ? j : jMin;
             }
         }
         if (a.length % 2 === 1) {
             accesses++, comparisons++;
-            yield [accesses, comparisons, [jMax, jLast]];
+            yield [accesses, comparisons, { '>': [jMax, jLast], '#ff8c00': [jMin] }];
             if (a[jLast] >= a[jMax]) {
                 jMax = jLast;
             }
             else {
                 comparisons++;
-                yield [accesses, comparisons, [jMin, jLast]];
+                yield [accesses, comparisons, { '>': [jMin, jLast], '#ff8c00': [jMax] }];
                 if (a[jLast] < a[jMin])
                     jMin = jLast;
             }
@@ -430,15 +453,18 @@ function* shell(a) {
                 accesses++;
                 a.swap(j - g, j);
             }
-            accesses++;
+            if (i !== j)
+                accesses++;
         }
     return [accesses, comparisons];
 }
 const barCount = Math.pow(2, 7);
 const msPerStep = 20;
-function addAlgorithm(algName, funName) {
+function addAlgorithm(algName, funName, funArg = null) {
     const a = array.slice();
-    const f = window[funName];
+    let f = window[funName];
+    if (funArg !== null)
+        f = f(funArg);
     const tuple = {
         array: a,
         function: f,
@@ -482,6 +508,12 @@ function calculateDimensions() {
     dims.canPadding = Math.floor(0.5 * (dims.canWidth - dims.canWidthInner));
     setDimensions();
 }
+function checkOverflow(header) {
+    const hide = header.querySelectorAll('.hide-on-overflow');
+    hide.forEach(e => e.style.removeProperty('display'));
+    if (header.scrollWidth > header.clientWidth)
+        hide.forEach(e => e.style.display = 'none');
+}
 function drawAll() {
     var _a, _b, _c;
     for (let i = 0; i < algs.length; i++) {
@@ -492,6 +524,7 @@ function drawAll() {
         const col = stp === null || stp === void 0 ? void 0 : stp[2];
         hdr.querySelector('#accesses').textContent = (_b = stp === null || stp === void 0 ? void 0 : stp[0].toString()) !== null && _b !== void 0 ? _b : '0';
         hdr.querySelector('#comparisons').textContent = (_c = stp === null || stp === void 0 ? void 0 : stp[1].toString()) !== null && _c !== void 0 ? _c : '0';
+        checkOverflow(hdr);
         can.clearRect(0, 0, dims.canWidth, dims.canHeight);
         for (let j = 0; j < arr.length; j++) {
             can.fillStyle = '#111';
@@ -529,10 +562,7 @@ function onFrame(time) {
 function setDimensions() {
     document.querySelectorAll('.header').forEach(h => {
         h.style.width = dims.canWidthInner + 'px';
-        const hide = h.querySelectorAll('.hide-on-overflow');
-        hide.forEach(e => e.style.removeProperty('display'));
-        if (h.scrollWidth > h.clientWidth)
-            hide.forEach(e => e.style.display = 'none');
+        checkOverflow(h);
     });
     document.querySelectorAll('canvas').forEach(c => {
         c.width = dims.canWidth;
