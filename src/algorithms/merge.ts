@@ -1,62 +1,47 @@
-function* mergeUp(a: number[]): StepGenerator {
-
+function* merge(a: number[]): StepGenerator {
     let accesses = 0
     let comparisons = 0
 
-    // TODO: should allocation be counted as accesses?
-    //       or only when setting it to 0, for example?
-    let b = new Array<number>(a.length)
+    const tree: Pair<number>[] = [] // start inclusive, end exclusive
+    if (a.length > 1) {
+        tree.push([0, a.length])
+        for (let i = 0; i < tree.length; i++) {
+            const [lo, hi] = tree[i]
+            const mi = Math.ceil((lo+hi) / 2)
+            if (hi-mi > 1) tree.push([mi, hi])
+            if (mi-lo > 1) tree.push([lo, mi])
+        }
+    }
 
-    for (let width = 1; width < a.length; width *= 2)
-        for (let i = 0; i < a.length; i += 2 * width) {
+    // TODO: should allocation count as accesses?
+    const b = new Array<number>(a.length)
 
-            // merge a[i : i+width-1] and a[i+width : i+2*width-1] to b[..]
-            const pMax = i + width
-            if (pMax >= a.length) continue
-            // This is a good optimization for almost sorted data. In our case
-            // (shuffled data) it reduces the number of accesses at the cost of
-            // comparisons. Since the low number of comparisons (compared to
-            // quicksort) is one of merge sort's strengths, this optimization is
-            // disabled here.
-         /* accesses += 2, comparisons++
-            if (a[pMax-1] <= a[pMax]) continue */
-            const qMax = Math.min(a.length, i + width * 2)
+    while (tree.length) {
+        const [lo, hi] = tree.pop()!
+        const mi = Math.ceil((lo+hi) / 2)
 
-            let p = i
-            let q = pMax
-
-            for (let j = i; j < qMax; j++)
-                if (p < pMax) {
-                    if (q >= qMax) {
-                        yield [accesses, comparisons, [p]]
-                        accesses += 2
-                        b[j] = a[p]
-                        p++
-                    } else {
-                        accesses += 2, comparisons++
-                        yield [accesses, comparisons, [p, q]]
-                        accesses++
-                        if (a[p] <= a[q])
-                            b[j] = a[p], p++
-                        else
-                            b[j] = a[q], q++
-                    }
+        for (let i = lo, j = mi, k = lo; k < hi; k++)
+            if (i < mi) {
+                if (j < hi) {
+                    accesses += 2, comparisons++
+                    yield [accesses, comparisons, [i, j]]
+                    accesses++
+                    if (a[i] <= a[j]) // stable
+                        b[k] = a[i++]
+                    else
+                        b[k] = a[j++]
                 } else {
-                    yield [accesses, comparisons, [q]]
                     accesses += 2
-                    b[j] = a[q]
-                    q++
+                    b[k] = a[i++]
                 }
-
-            // copy b[i : i+2*width-1] to a[..]
-            for (let j = i; j < qMax; j++) {
+            } else if (j < hi) {
                 accesses += 2
-                a[j] = b[j]
-             // yield [accesses, comparisons, [], [j], 'copying']
+                b[k] = a[j++]
             }
 
-        }
+        accesses += 2 * (hi-lo)
+        for (let k = lo; k < hi; k++) a[k] = b[k]
+    }
 
     return [accesses, comparisons] as Pair<number>
-
 }

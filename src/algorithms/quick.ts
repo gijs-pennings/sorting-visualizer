@@ -61,7 +61,7 @@ function quick(type: string): AlgorithmFunction {
 
             // i - choosing pivot (threshold was empirically determined by minimizing comparisons)
             const mi = Math.floor((lo+hi) / 2)
-            if (hi - lo + 1 >= 16) {
+            if (hi-lo+1 >= 16) {
                 // >= 16 elements: median of three
                 accesses += 2, comparisons++
                 yield [accesses, comparisons, [lo, mi]]
