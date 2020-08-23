@@ -48,21 +48,24 @@ function* heap(a: number[]): StepGenerator {
         while (r(j) < size) {
             accesses += 2, comparisons++
             yield [accesses, comparisons, { '>': [l(j), r(j)], ...getHeapColors(i) }] as StepInfo
-            j = a[l(j)] > a[r(j)] ? l(j) : r(j)
+            j = a[l(j)] >= a[r(j)] ? l(j) : r(j)
         }
-        if (l(j) < size) j = l(j)
+        if (l(j) < size) j = l(j), accesses++
+        if (j === i) return
 
-        // Search (upward) for the position to put a[i] in. First swap a[i] and
-        // then move the values above it upward.
-        accesses += 2
+        // Search (upward) for the position to put a[i] in. This algorithm can
+        // be further improved using binary search, but I have chosen not to.
+        accesses++
         while (true) {
             comparisons++
             yield [accesses, comparisons, { '>': [i, j], ...getHeapColors(i) }] as StepInfo
             if (a[i] <= a[j]) break
-            accesses++
             j = p(j)
+            if (j === i) return
+            accesses++
         }
 
+        // First swap a[i], then move the values above it upward.
         let x = a[j]
         accesses++
         a[j] = a[i]
@@ -72,6 +75,35 @@ function* heap(a: number[]): StepGenerator {
             x = a.swapValue(j, x)
         }
     }
+    /*
+
+    j ← i
+    while r(j) < size
+        p ← a[l(j)]
+        q ← a[r(j)]
+        if p ≥ q
+            j ← l(j)
+            x ← p
+        else
+            j ← r(j)
+            x ← q
+    if l(j) < size
+        j ← l(j)
+        x ← a[j]
+    if j = i: return
+    y ← a[i]
+    while x < y
+        j ← p(j)
+        if j = i: return
+        x ← a[j]
+    a[j] ← y
+    while i < j
+        j ← p(j)
+        y ← x
+        x ← a[j]
+        a[j] ← y
+
+    */
 
     // build max heap
     for (let i = Math.floor(a.length / 2) - 1; i >= 0; i--)
