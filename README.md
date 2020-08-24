@@ -13,9 +13,9 @@ As a rule of thumb, I only included algorithms that have real-world applications
 - **Only random access**\
   The implementations of all algorithms use arrays to store data, rather than lists, which only allow sequential access. Many algorithms work on both types, but may require modification.
 - **Only comparison sorts**\
-  Only algorithms that determine the right order by comparing elements have been included; such algorithms can sort any type of data, as long as a comparison operator is defined. I have therefore not included algorithms such as Counting Sort or Bogo Sort.
+  Only algorithms that determine the right order by comparing elements were included; such algorithms can sort any type of data, as long as a comparison operator is defined. I did therefore not include algorithms such as Counting Sort or Bogo Sort.
 - **No hybrid sorts**\
-  Although hybrid sorting algorithms are often used in practice (since they are designed to perform better), they are less interesting visually: you can arguably get a clearer picture by watching the algorithms separately. Hence, algorithms such as Intro Sort have been left out.
+  Although hybrid sorting algorithms are often used in practice (since they are designed to perform better), they are less interesting visually: you can arguably get a clearer picture by watching the algorithms separately. Hence, algorithms such as Intro Sort were left out. Tim Sort is a grey area (since it uses additional unique logic), but due to its complexity, I decided to leave it out in the end as well.
 
 
 ## List of algorithms
@@ -44,4 +44,4 @@ You can select one algorithm, or multiple to watch them simultaneously. Then, yo
 
 It is important to note that each step representing one comparison can result in a distorted perspective of the speed of the algorithms. For example, Binary Insertion Sort may appear to run faster than Quick Sort (using Hoare's partitioning scheme), since the animation finishes earlier. However, for an array of only 512 elements, it already needs to access the array almost *seventeen times* as much as Quick Sort (test it yourself!). This is why, if you measure the actual runtime, Quick Sort still comes out on top.
 
-The number of accesses and comparisons have been (heavily) optimized. Hence, they may not represent real-world implementations. This is partly because I don't need to optimize the actual runtime or have concerns like [cache hit rate](https://en.wikipedia.org/wiki/CPU_cache#Cache_performance). In fact, the number of accesses may not even match the animation itself. The reason is that values can often be cached instead of swapped, while in the animation they *are* swapped to paint a clearer picture. An example of this is Bubble Sort ([source](src/algorithms/bubble.ts)).
+The number of accesses and comparisons were (heavily) optimized. Hence, they may not represent real-world implementations. This is partly because I don't need to optimize the actual runtime or have concerns like [cache hit rate](https://en.wikipedia.org/wiki/CPU_cache#Cache_performance). In fact, the number of accesses may not even match the animation itself. The reason is that values can often be cached instead of swapped, while in the animation they *are* swapped to paint a clearer picture. An example of this is Bubble Sort ([source](src/algorithms/bubble.ts)).
