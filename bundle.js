@@ -153,18 +153,22 @@ function* heap(a) {
         while (r(j) < size) {
             accesses += 2, comparisons++;
             yield [accesses, comparisons, Object.assign({ '>': [l(j), r(j)] }, getHeapColors(i))];
-            j = a[l(j)] > a[r(j)] ? l(j) : r(j);
+            j = a[l(j)] >= a[r(j)] ? l(j) : r(j);
         }
         if (l(j) < size)
-            j = l(j);
-        accesses += 2;
+            j = l(j), accesses++;
+        if (j === i)
+            return;
+        accesses++;
         while (true) {
             comparisons++;
             yield [accesses, comparisons, Object.assign({ '>': [i, j] }, getHeapColors(i))];
             if (a[i] <= a[j])
                 break;
-            accesses++;
             j = p(j);
+            if (j === i)
+                return;
+            accesses++;
         }
         let x = a[j];
         accesses++;
@@ -227,17 +231,16 @@ function* merge(a) {
     let accesses = 0;
     let comparisons = 0;
     const tree = [];
-    if (a.length > 1) {
-        tree.push([0, a.length]);
-        for (let i = 0; i < tree.length; i++) {
-            const [lo, hi] = tree[i];
-            const mi = Math.ceil((lo + hi) / 2);
-            if (hi - mi > 1)
-                tree.push([mi, hi]);
-            if (mi - lo > 1)
-                tree.push([lo, mi]);
-        }
-    }
+    const recur = function (lo, hi) {
+        tree.push([lo, hi]);
+        const mi = Math.ceil((lo + hi) / 2);
+        if (hi - mi > 1)
+            recur(mi, hi);
+        if (mi - lo > 1)
+            recur(lo, mi);
+    };
+    if (a.length > 1)
+        recur(0, a.length);
     const b = new Array(a.length);
     accesses += 2 * a.length;
     while (tree.length) {
