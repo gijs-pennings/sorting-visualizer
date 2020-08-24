@@ -38,8 +38,10 @@ As a rule of thumb, I only included algorithms that have real-world applications
   This algorithm improves on Insertion Sort similarly to how Comb Sort improves on Bubble Sort: starting with large gaps, it moves out-of-place elements into position more quickly. Unlike all algorithms above, its time complexity (for the gap sequence used) has not yet been determined.
 
 
-## How it works
+## How it works & limitations
 
 You can select one algorithm, or multiple to watch them simultaneously. Then, you can either let it play or walk through it, step by step. Each step represents exactly one comparison between two elements. The current comparison is highlighted in red, while any additional information is displayed by other colors. After each step, the number of array accesses and comparisons is updated and shown in the header of the figure.
 
 It is important to note that each step representing one comparison can result in a distorted perspective of the speed of the algorithms. For example, Binary Insertion Sort may appear to run faster than Quick Sort (using Hoare's partitioning scheme), since the animation finishes earlier. However, for an array of only 512 elements, it already needs to access the array almost *seventeen times* as much as Quick Sort (test it yourself!). This is why, if you measure the actual runtime, Quick Sort still comes out on top.
+
+The number of accesses and comparisons have been (heavily) optimized. Hence, they may not represent real-world implementations. This is partly because I don't need to optimize the actual runtime or have concerns like [cache hit rate](https://en.wikipedia.org/wiki/CPU_cache#Cache_performance). In fact, the number of accesses may not even match the animation itself. The reason is that values can often be cached instead of swapped, while in the animation they *are* swapped to paint a clearer picture. An example of this is Bubble Sort ([source](src/algorithms/bubble.ts)).
