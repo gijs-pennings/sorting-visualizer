@@ -3,15 +3,13 @@ function* merge(a: number[]): StepGenerator {
     let comparisons = 0
 
     const tree: Pair<number>[] = [] // start inclusive, end exclusive
-    if (a.length > 1) {
-        tree.push([0, a.length])
-        for (let i = 0; i < tree.length; i++) {
-            const [lo, hi] = tree[i]
-            const mi = Math.ceil((lo+hi) / 2)
-            if (hi-mi > 1) tree.push([mi, hi])
-            if (mi-lo > 1) tree.push([lo, mi])
-        }
+    const recur = function(lo: number, hi: number) {
+        tree.push([lo, hi])
+        const mi = Math.ceil((lo+hi) / 2)
+        if (hi-mi > 1) recur(mi, hi)
+        if (mi-lo > 1) recur(lo, mi)
     }
+    if (a.length > 1) recur(0, a.length)
 
     // By copying a to b once and alternating their role every 'level', much
     // less copying (and hence accesses) is necessary.
