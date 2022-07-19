@@ -1,4 +1,4 @@
-# Sorting Visualizer
+# Sorting visualizer
 
 This project was inspired by [The Sound of Sorting](https://panthema.net/2013/sound-of-sorting) by Timo Bingmann (I recommend watching the [video](https://www.youtube.com/watch?v=kPRA0W1kECg)).
 My goal was to create a sorting algorithm visualization tool on the web. For this I used TypeScript and HTML5 canvasses. You can play around with the most recent version [here](https://gijs-pennings.github.io/sorting-visualizer).
@@ -33,7 +33,7 @@ As a rule of thumb, I only included algorithms that have real-world applications
 - **Quick Sort**\
   Another well-known sorting algorithm. Although in the worst case, it performs much worse than many other algorithms, it's the fastest algorithm on average in many cases. You can choose between two partitioning schemes: the one by *Hoare* and the one by *Lomuto*. While Lomuto is often taught in school, Hoare swaps less elements and creates more efficient partitions when many elements are equal.
 - **Selection Sort**\
-  A simple but inefficient algorithm without much practical use. Its relatively unknown sibling *Double Selection Sort* uses three comparisons per two elements to find both the minimum and the maximum. As a result, it needs about 25% less comparisons.
+  A simple but inefficient algorithm without much practical use. The relatively unknown variant *Double Selection Sort* uses three comparisons per two elements to find both the minimum and the maximum. As a result, it needs about 25% less comparisons.
 - **Shell Sort**\
   This algorithm improves on Insertion Sort similarly to how Comb Sort improves on Bubble Sort: starting with larger gaps, it moves out-of-place elements into position more quickly. Unlike all algorithms above, its time complexity (for the gap sequence used) has not yet been determined.
 
@@ -44,4 +44,4 @@ You can select one algorithm, or multiple to watch them simultaneously. Then, yo
 
 It is important to note that each step representing one comparison can result in a distorted perspective of the speed of the algorithms. For example, Binary Insertion Sort may appear to run faster than Quick Sort (using Hoare's partitioning scheme), since the animation finishes earlier. However, for an array of only 512 elements, it already needs to access the array almost *seventeen times* as much as Quick Sort (test it yourself!). This is why, if you measure the actual runtime, Quick Sort still comes out on top.
 
-The number of accesses and comparisons were (heavily) optimized. Hence, they may not represent real-world implementations. This is partly because I don't need to optimize the actual runtime or have concerns like [cache hit rate](https://en.wikipedia.org/wiki/CPU_cache#Cache_performance). In fact, the number of accesses may not even match the animation itself. The reason is that values can often be cached instead of swapped, while in the animation they *are* swapped to paint a clearer picture. An example of this is Bubble Sort ([source](src/algorithms/bubble.ts)).
+The number of accesses and comparisons were optimized. Hence, they may not represent real-world implementations. This is partly because I don't need to optimize the actual runtime or have concerns like [cache hit rate](https://en.wikipedia.org/wiki/Cache_performance_measurement_and_metric). In fact, the number of accesses may not even match the animation itself. The reason is that values can often be cached instead of swapped, while in the animation they *are* swapped to paint a clearer picture. An example of this is Bubble Sort ([source](src/algorithms/bubble.ts)).
